@@ -1,0 +1,51 @@
+{
+  "gensim_fasttext": {
+    "artifact": {
+      "bytes": 57140028,
+      "path": "models\\gensim_fasttext_sg.model",
+      "under_100_mib": true
+    },
+    "corpus_count": 2678,
+    "params": {
+      "bucket": 100000,
+      "epochs": 10,
+      "max_n": 4,
+      "min_count": 3,
+      "min_n": 2,
+      "seed": 42,
+      "sg": 1,
+      "vector_size": 100,
+      "window": 5,
+      "workers": 1
+    },
+    "seconds": 39.13419249999424,
+    "vocabulary_size": 20650
+  },
+  "pretrained_vectors": {
+    "bytes": 8718484,
+    "exported_known_tokens": 7533,
+    "oov_exported": 0,
+    "path": "models\\gensim_fasttext_train_vocab.vec",
+    "train_vocabulary_tokens": 9313
+  },
+  "unsupervised_corpus_sha256": "5271e02a8a2e503aae7e421b64b913ddd1e38cdae77bca1f39c8081f8a7c9fa9",
+  "w2v": {
+    "artifact": {
+      "bytes": 17139819,
+      "path": "models\\word2vec_sg.model",
+      "under_100_mib": true
+    },
+    "corpus_count": 2678,
+    "params": {
+      "epochs": 10,
+      "min_count": 3,
+      "seed": 42,
+      "sg": 1,
+      "vector_size": 100,
+      "window": 5,
+      "workers": 1
+    },
+    "seconds": 27.535715199999686,
+    "vocabulary_size": 20650
+  }
+}

@@ -1,0 +1,117 @@
+{
+  "class_counts": {
+    "体育": 50,
+    "国际": 50,
+    "政治": 50,
+    "文化": 50,
+    "社会": 50,
+    "经济": 50
+  },
+  "metric_groups_recomputed": 45,
+  "nested_task_split_counts": {
+    "2class": {
+      "test": {
+        "体育": 10,
+        "经济": 10
+      },
+      "train": {
+        "体育": 30,
+        "经济": 30
+      },
+      "val": {
+        "体育": 10,
+        "经济": 10
+      }
+    },
+    "4class": {
+      "test": {
+        "体育": 10,
+        "国际": 10,
+        "文化": 10,
+        "经济": 10
+      },
+      "train": {
+        "体育": 30,
+        "国际": 30,
+        "文化": 30,
+        "经济": 30
+      },
+      "val": {
+        "体育": 10,
+        "国际": 10,
+        "文化": 10,
+        "经济": 10
+      }
+    },
+    "6class": {
+      "test": {
+        "体育": 10,
+        "国际": 10,
+        "政治": 10,
+        "文化": 10,
+        "社会": 10,
+        "经济": 10
+      },
+      "train": {
+        "体育": 30,
+        "国际": 30,
+        "政治": 30,
+        "文化": 30,
+        "社会": 30,
+        "经济": 30
+      },
+      "val": {
+        "体育": 10,
+        "国际": 10,
+        "政治": 10,
+        "文化": 10,
+        "社会": 10,
+        "经济": 10
+      }
+    }
+  },
+  "prediction_rows": 3000,
+  "selected_articles": 300,
+  "six_class_test_confusion_total": 60,
+  "six_class_test_errors": 15,
+  "split_counts_by_label": {
+    "体育": {
+      "test": 10,
+      "train": 30,
+      "val": 10
+    },
+    "国际": {
+      "test": 10,
+      "train": 30,
+      "val": 10
+    },
+    "政治": {
+      "test": 10,
+      "train": 30,
+      "val": 10
+    },
+    "文化": {
+      "test": 10,
+      "train": 30,
+      "val": 10
+    },
+    "社会": {
+      "test": 10,
+      "train": 30,
+      "val": 10
+    },
+    "经济": {
+      "test": 10,
+      "train": 30,
+      "val": 10
+    }
+  },
+  "status": "PASS",
+  "unsupervised_excluded_reason_counts": {
+    "empty_body_no_tokens": 350,
+    "validation_or_test_id": 120
+  },
+  "unsupervised_included_articles": 2678,
+  "validation_test_body_and_prefix_duplicates_absent": true,
+  "validation_test_ids_absent_from_unsupervised": true
+}

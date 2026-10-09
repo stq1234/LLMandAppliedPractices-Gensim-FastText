@@ -1,0 +1,12 @@
+﻿model,query,key_to_index,vector_available,vector_norm,neighbors,interpretation
+gensim_word2vec,经济,True,True,3.980271339416504,国民经济:0.7068 | 推动力:0.6637 | 金融业:0.6443 | 驱动:0.6362 | 增长:0.6333,diagnostic_only_not_a_quality_metric
+gensim_word2vec,银行,True,True,4.830265522003174,分行:0.8105 | 贷款:0.7089 | 行长:0.6899 | 国商:0.6887 | 总行:0.6852,diagnostic_only_not_a_quality_metric
+gensim_word2vec,足球,True,True,2.837399959564209,世界杯:0.7770 | 泰山:0.7664 | 体操:0.7493 | 鲁能:0.7441 | 国际象棋:0.7416,diagnostic_only_not_a_quality_metric
+gensim_word2vec,文化,True,True,4.0096611976623535,源远流长:0.6866 | 底蕴:0.6787 | 熏陶:0.6692 | 博大精深:0.6531 | 人文:0.6505,diagnostic_only_not_a_quality_metric
+gensim_fasttext,经济,True,True,3.8565049171447754,商品经济:0.7849 | 国民经济:0.7777 | 经济性:0.7641 | 经济基础:0.7629 | 自然经济:0.7446,diagnostic_only_not_a_quality_metric
+gensim_fasttext,银行,True,True,4.675317764282227,中国银行:0.7983 | 分行:0.7978 | 银行业:0.7534 | 银行家:0.7476 | 该行:0.7161,diagnostic_only_not_a_quality_metric
+gensim_fasttext,足球,True,True,3.2392406463623047,足球赛:0.8439 | 羽毛球:0.8361 | 网球:0.8324 | 乒乓球:0.8220 | 球:0.8095,diagnostic_only_not_a_quality_metric
+gensim_fasttext,文化,True,True,3.9858899116516113,新文化:0.8301 | 文化史:0.7902 | 文化教育:0.7891 | 文化人:0.7886 | 文化界:0.7774,diagnostic_only_not_a_quality_metric
+gensim_fasttext,数字农业实验室,False,True,1.1741712093353271,实验室:0.8212 | 复合材料:0.7865 | 测绘:0.7756 | 青铜器:0.7746 | 铀:0.7732,diagnostic_only_subword_composition_not_semantic_validation
+gensim_fasttext,星际体育学院,False,True,1.555963158607483,商学院:0.8913 | 画院:0.8759 | 理工学院:0.8745 | 工程学院:0.8643 | 热科院:0.8538,diagnostic_only_subword_composition_not_semantic_validation
+gensim_fasttext,云端金融平台,False,True,1.206130027770996,ＤＶＤ:0.8213 | ＭＴＶ:0.8177 | 望而却步:0.8138 | ＺＢＴ:0.8128 | 前台:0.8108,diagnostic_only_subword_composition_not_semantic_validation

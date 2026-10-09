@@ -1,0 +1,369 @@
+{
+  "audit": {
+    "class_counts": {
+      "体育": 50,
+      "国际": 50,
+      "政治": 50,
+      "文化": 50,
+      "社会": 50,
+      "经济": 50
+    },
+    "metric_groups_recomputed": 45,
+    "nested_task_split_counts": {
+      "2class": {
+        "test": {
+          "体育": 10,
+          "经济": 10
+        },
+        "train": {
+          "体育": 30,
+          "经济": 30
+        },
+        "val": {
+          "体育": 10,
+          "经济": 10
+        }
+      },
+      "4class": {
+        "test": {
+          "体育": 10,
+          "国际": 10,
+          "文化": 10,
+          "经济": 10
+        },
+        "train": {
+          "体育": 30,
+          "国际": 30,
+          "文化": 30,
+          "经济": 30
+        },
+        "val": {
+          "体育": 10,
+          "国际": 10,
+          "文化": 10,
+          "经济": 10
+        }
+      },
+      "6class": {
+        "test": {
+          "体育": 10,
+          "国际": 10,
+          "政治": 10,
+          "文化": 10,
+          "社会": 10,
+          "经济": 10
+        },
+        "train": {
+          "体育": 30,
+          "国际": 30,
+          "政治": 30,
+          "文化": 30,
+          "社会": 30,
+          "经济": 30
+        },
+        "val": {
+          "体育": 10,
+          "国际": 10,
+          "政治": 10,
+          "文化": 10,
+          "社会": 10,
+          "经济": 10
+        }
+      }
+    },
+    "prediction_rows": 3000,
+    "selected_articles": 300,
+    "six_class_test_confusion_total": 60,
+    "six_class_test_errors": 15,
+    "split_counts_by_label": {
+      "体育": {
+        "test": 10,
+        "train": 30,
+        "val": 10
+      },
+      "国际": {
+        "test": 10,
+        "train": 30,
+        "val": 10
+      },
+      "政治": {
+        "test": 10,
+        "train": 30,
+        "val": 10
+      },
+      "文化": {
+        "test": 10,
+        "train": 30,
+        "val": 10
+      },
+      "社会": {
+        "test": 10,
+        "train": 30,
+        "val": 10
+      },
+      "经济": {
+        "test": 10,
+        "train": 30,
+        "val": 10
+      }
+    },
+    "status": "PASS",
+    "unsupervised_excluded_reason_counts": {
+      "empty_body_no_tokens": 350,
+      "validation_or_test_id": 120
+    },
+    "unsupervised_included_articles": 2678,
+    "validation_test_body_and_prefix_duplicates_absent": true,
+    "validation_test_ids_absent_from_unsupervised": true
+  },
+  "classification_rows": {
+    "2class": {
+      "test": 20,
+      "train": 60,
+      "val": 20
+    },
+    "4class": {
+      "test": 40,
+      "train": 120,
+      "val": 40
+    },
+    "6class": {
+      "test": 60,
+      "train": 180,
+      "val": 60
+    }
+  },
+  "corpus": {
+    "archive_bytes": 20305578,
+    "archive_sha256": "17474bbf2b360921f2eae0089fd83e22601e5a0649943c3f59403650997b4ed2",
+    "articles": 3148,
+    "articles_body_ge_80": 2361,
+    "articles_missing_title_segment": 1,
+    "blank_lines": 3080,
+    "chunk_markers_encountered": 9183,
+    "clean_nonpunct_tokens": 947665,
+    "date_end": "19980131",
+    "date_start": "19980101",
+    "duplicate_segment_examples": [
+      {
+        "article_id": "19980127-09-001",
+        "segment_id": 32,
+        "source_line_numbers": [
+          20964,
+          20965
+        ]
+      }
+    ],
+    "duplicate_segment_keys": 1,
+    "duplicate_segment_records_extra": 1,
+    "encoding": "utf-8-sig",
+    "physical_lines": 22564,
+    "pos_tags": {
+      "Ag": 315,
+      "Bg": 6,
+      "Dg": 125,
+      "Mg": 6,
+      "Ng": 4489,
+      "Rg": 10,
+      "Tg": 480,
+      "Vg": 1843,
+      "Yg": 1,
+      "a": 34578,
+      "ad": 5893,
+      "an": 2827,
+      "b": 8734,
+      "c": 25438,
+      "d": 47426,
+      "e": 25,
+      "f": 17279,
+      "h": 48,
+      "i": 4774,
+      "j": 10282,
+      "k": 904,
+      "l": 6195,
+      "m": 41324,
+      "n": 237176,
+      "nr": 35259,
+      "ns": 27607,
+      "nt": 3554,
+      "nx": 415,
+      "nz": 3745,
+      "o": 72,
+      "p": 39907,
+      "q": 24230,
+      "r": 32336,
+      "s": 3851,
+      "t": 20675,
+      "u": 74751,
+      "v": 184778,
+      "vd": 494,
+      "vn": 42575,
+      "w": 173056,
+      "y": 1900,
+      "z": 1338
+    },
+    "punctuation_tokens_dropped": 173056,
+    "records": 19484,
+    "selected_articles": 300,
+    "selected_counts": {
+      "体育": 50,
+      "国际": 50,
+      "政治": 50,
+      "文化": 50,
+      "社会": 50,
+      "经济": 50
+    },
+    "single_category_candidates_under_six_class_rules": {
+      "体育": 50,
+      "国际": 124,
+      "政治": 71,
+      "文化": 70,
+      "社会": 113,
+      "经济": 192
+    },
+    "source_member": "199801/199801.txt",
+    "source_member_bytes": 10666468,
+    "source_member_sha256": "41760f40739b0f301ab29e99ab14565e7cd4b06128eb3a6ac18bce277a6075a8",
+    "source_name": "人民日报1998_PFR.zip",
+    "split_counts_by_label": {
+      "体育": {
+        "test": 10,
+        "train": 30,
+        "val": 10
+      },
+      "国际": {
+        "test": 10,
+        "train": 30,
+        "val": 10
+      },
+      "政治": {
+        "test": 10,
+        "train": 30,
+        "val": 10
+      },
+      "文化": {
+        "test": 10,
+        "train": 30,
+        "val": 10
+      },
+      "社会": {
+        "test": 10,
+        "train": 30,
+        "val": 10
+      },
+      "经济": {
+        "test": 10,
+        "train": 30,
+        "val": 10
+      }
+    },
+    "status_counts": {
+      "candidate": 620,
+      "cross_category_hit": 57,
+      "missing_title": 1,
+      "no_keyword_hit": 1684,
+      "short_body": 786
+    },
+    "target_per_class": 50,
+    "unique_dates": 31,
+    "unsupervised_articles_included": 2678,
+    "unsupervised_excluded_reason_counts": {
+      "empty_body_no_tokens": 350,
+      "validation_or_test_id": 120
+    },
+    "unsupervised_tokens": 870023
+  },
+  "embedding_training": {
+    "gensim_fasttext": {
+      "artifact": {
+        "bytes": 57140028,
+        "path": "models\\gensim_fasttext_sg.model",
+        "under_100_mib": true
+      },
+      "corpus_count": 2678,
+      "params": {
+        "bucket": 100000,
+        "epochs": 10,
+        "max_n": 4,
+        "min_count": 3,
+        "min_n": 2,
+        "seed": 42,
+        "sg": 1,
+        "vector_size": 100,
+        "window": 5,
+        "workers": 1
+      },
+      "seconds": 39.13419249999424,
+      "vocabulary_size": 20650
+    },
+    "pretrained_vectors": {
+      "bytes": 8718484,
+      "exported_known_tokens": 7533,
+      "oov_exported": 0,
+      "path": "models\\gensim_fasttext_train_vocab.vec",
+      "train_vocabulary_tokens": 9313
+    },
+    "unsupervised_corpus_sha256": "5271e02a8a2e503aae7e421b64b913ddd1e38cdae77bca1f39c8081f8a7c9fa9",
+    "w2v": {
+      "artifact": {
+        "bytes": 17139819,
+        "path": "models\\word2vec_sg.model",
+        "under_100_mib": true
+      },
+      "corpus_count": 2678,
+      "params": {
+        "epochs": 10,
+        "min_count": 3,
+        "seed": 42,
+        "sg": 1,
+        "vector_size": 100,
+        "window": 5,
+        "workers": 1
+      },
+      "seconds": 27.535715199999686,
+      "vocabulary_size": 20650
+    }
+  },
+  "files": [
+    "data\\SOURCE.md",
+    "data\\cleaned_january_articles.jsonl",
+    "data\\corpus_stats.json",
+    "data\\frozen_split.csv",
+    "data\\label_filter_audit.csv",
+    "data\\selection_rules.json",
+    "data\\unsupervised_corpus.txt",
+    "data\\unsupervised_corpus_manifest.csv",
+    "data\\weak_label_candidates.csv",
+    "models\\gensim_fasttext_sg.model",
+    "models\\gensim_fasttext_train_vocab.vec",
+    "models\\official_fasttext_pretrained_6class.bin",
+    "models\\word2vec_sg.model",
+    "results\\audit_report.json",
+    "results\\classification_comparison.png",
+    "results\\confusion_6class_pretrained.png",
+    "results\\confusion_matrix_6class_pretrained.csv",
+    "results\\data_split_counts.png",
+    "results\\embedding_diagnostics.csv",
+    "results\\embedding_training.json",
+    "results\\errors_6class_pretrained_fasttext.csv",
+    "results\\fasttext_validation_curve.csv",
+    "results\\fasttext_validation_curves.png",
+    "results\\metrics.csv",
+    "results\\predictions.csv",
+    "results\\run_metadata.json"
+  ],
+  "metrics_rows": 15,
+  "prediction_rows": 3000,
+  "python": "3.12.7 | packaged by Anaconda, Inc. | (main, Oct  4 2024, 13:17:27) [MSC v.1929 64 bit (AMD64)]",
+  "python_executable": "D:\\Softs\\anaconda\\python.exe",
+  "pythonhashseed": "0",
+  "validation_curve_rows": 18,
+  "versions": {
+    "fasttext_wheel": "0.9.2",
+    "gensim": "4.3.3",
+    "matplotlib": "3.9.2",
+    "numpy": "1.26.4",
+    "scikit_learn": "1.5.1",
+    "scipy": "1.13.1"
+  }
+}

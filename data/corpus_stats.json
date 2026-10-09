@@ -1,0 +1,140 @@
+{
+  "archive_bytes": 20305578,
+  "archive_sha256": "17474bbf2b360921f2eae0089fd83e22601e5a0649943c3f59403650997b4ed2",
+  "articles": 3148,
+  "articles_body_ge_80": 2361,
+  "articles_missing_title_segment": 1,
+  "blank_lines": 3080,
+  "chunk_markers_encountered": 9183,
+  "clean_nonpunct_tokens": 947665,
+  "date_end": "19980131",
+  "date_start": "19980101",
+  "duplicate_segment_examples": [
+    {
+      "article_id": "19980127-09-001",
+      "segment_id": 32,
+      "source_line_numbers": [
+        20964,
+        20965
+      ]
+    }
+  ],
+  "duplicate_segment_keys": 1,
+  "duplicate_segment_records_extra": 1,
+  "encoding": "utf-8-sig",
+  "physical_lines": 22564,
+  "pos_tags": {
+    "Ag": 315,
+    "Bg": 6,
+    "Dg": 125,
+    "Mg": 6,
+    "Ng": 4489,
+    "Rg": 10,
+    "Tg": 480,
+    "Vg": 1843,
+    "Yg": 1,
+    "a": 34578,
+    "ad": 5893,
+    "an": 2827,
+    "b": 8734,
+    "c": 25438,
+    "d": 47426,
+    "e": 25,
+    "f": 17279,
+    "h": 48,
+    "i": 4774,
+    "j": 10282,
+    "k": 904,
+    "l": 6195,
+    "m": 41324,
+    "n": 237176,
+    "nr": 35259,
+    "ns": 27607,
+    "nt": 3554,
+    "nx": 415,
+    "nz": 3745,
+    "o": 72,
+    "p": 39907,
+    "q": 24230,
+    "r": 32336,
+    "s": 3851,
+    "t": 20675,
+    "u": 74751,
+    "v": 184778,
+    "vd": 494,
+    "vn": 42575,
+    "w": 173056,
+    "y": 1900,
+    "z": 1338
+  },
+  "punctuation_tokens_dropped": 173056,
+  "records": 19484,
+  "selected_articles": 300,
+  "selected_counts": {
+    "体育": 50,
+    "国际": 50,
+    "政治": 50,
+    "文化": 50,
+    "社会": 50,
+    "经济": 50
+  },
+  "single_category_candidates_under_six_class_rules": {
+    "体育": 50,
+    "国际": 124,
+    "政治": 71,
+    "文化": 70,
+    "社会": 113,
+    "经济": 192
+  },
+  "source_member": "199801/199801.txt",
+  "source_member_bytes": 10666468,
+  "source_member_sha256": "41760f40739b0f301ab29e99ab14565e7cd4b06128eb3a6ac18bce277a6075a8",
+  "source_name": "人民日报1998_PFR.zip",
+  "split_counts_by_label": {
+    "体育": {
+      "test": 10,
+      "train": 30,
+      "val": 10
+    },
+    "国际": {
+      "test": 10,
+      "train": 30,
+      "val": 10
+    },
+    "政治": {
+      "test": 10,
+      "train": 30,
+      "val": 10
+    },
+    "文化": {
+      "test": 10,
+      "train": 30,
+      "val": 10
+    },
+    "社会": {
+      "test": 10,
+      "train": 30,
+      "val": 10
+    },
+    "经济": {
+      "test": 10,
+      "train": 30,
+      "val": 10
+    }
+  },
+  "status_counts": {
+    "candidate": 620,
+    "cross_category_hit": 57,
+    "missing_title": 1,
+    "no_keyword_hit": 1684,
+    "short_body": 786
+  },
+  "target_per_class": 50,
+  "unique_dates": 31,
+  "unsupervised_articles_included": 2678,
+  "unsupervised_excluded_reason_counts": {
+    "empty_body_no_tokens": 350,
+    "validation_or_test_id": 120
+  },
+  "unsupervised_tokens": 870023
+}
