@@ -1,6 +1,6 @@
 # 数据来源与固定摘要
 
-本实验复用项目已有的本地语料包 `作业1.3_ngram编程实验/data/人民日报1998_PFR.zip`，不在本项目重复保存原始压缩包。相关公开语料说明可参考：<https://github.com/chenhui-bupt/PeopleDaily1998>。本项目只读取 ZIP 成员 `199801/199801.txt`，按 UTF-8-SIG 严格解码，使用数据中已有的词/POS 分词，不再重新分词。
+本实验使用本地语料包 `作业1.3_ngram编程实验/data/人民日报1998_PFR.zip`，不在本项目重复保存原始压缩包。相关公开语料说明可参考：<https://github.com/chenhui-bupt/PeopleDaily1998>。本项目只读取 ZIP 成员 `199801/199801.txt`，按 UTF-8-SIG 严格解码，使用数据中已有的词/POS 分词，不再重新分词。
 
 固定源文件信息：
 
