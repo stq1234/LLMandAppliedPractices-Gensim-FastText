@@ -8,6 +8,28 @@
       "社会": 50,
       "经济": 50
     },
+    "embedding_checkpoints_loaded_and_parameters_verified": true,
+    "embedding_source": {
+      "config": "cmn_s",
+      "cross_corpus_eval_exact_matches": 0,
+      "cross_corpus_eval_prefix_200_matches": 0,
+      "cross_corpus_exact_matches_any_people_daily": 0,
+      "cross_corpus_prefix_200_matches_any_people_daily": 0,
+      "dataset": "bltlab/lr-sum",
+      "excluded_reason_counts": {
+        "duplicate_exact_external": 1
+      },
+      "included_articles": 482,
+      "included_tokens": 359302,
+      "revision": "deb2e73ce53e42ceda31297a991afa138ee665a8",
+      "source_rows": 483,
+      "source_sha256": "687db5968b23e492bfb904dc438e6ecff95f711ab93c8ef3d4d36e086d5e8630",
+      "split": "train",
+      "title_summary_labels_used": false
+    },
+    "evaluation_text_absent_from_external_embeddings": true,
+    "fasttext_known_train_vocabulary_types": 3975,
+    "frozen_classification_inputs_unchanged": true,
     "metric_groups_recomputed": 45,
     "nested_task_split_counts": {
       "2class": {
@@ -72,9 +94,11 @@
       }
     },
     "prediction_rows": 3000,
+    "pretrained_vec_rows": 3975,
+    "pretrained_vec_zero_vectors": 0,
     "selected_articles": 300,
     "six_class_test_confusion_total": 60,
-    "six_class_test_errors": 15,
+    "six_class_test_errors": 17,
     "split_counts_by_label": {
       "体育": {
         "test": 10,
@@ -108,32 +132,12 @@
       }
     },
     "status": "PASS",
+    "train_vocabulary_types": 9313,
     "unsupervised_excluded_reason_counts": {
-      "empty_body_no_tokens": 350,
-      "validation_or_test_id": 120
-    },
-    "unsupervised_included_articles": 2678,
-    "validation_test_body_and_prefix_duplicates_absent": true,
-    "validation_test_ids_absent_from_unsupervised": true
-  },
-  "classification_rows": {
-    "2class": {
-      "test": 20,
-      "train": 60,
-      "val": 20
-    },
-    "4class": {
-      "test": 40,
-      "train": 120,
-      "val": 40
-    },
-    "6class": {
-      "test": 60,
-      "train": 180,
-      "val": 60
+      "duplicate_exact_external": 1
     }
   },
-  "corpus": {
+  "classification_corpus": {
     "archive_bytes": 20305578,
     "archive_sha256": "17474bbf2b360921f2eae0089fd83e22601e5a0649943c3f59403650997b4ed2",
     "articles": 3148,
@@ -142,6 +146,7 @@
     "blank_lines": 3080,
     "chunk_markers_encountered": 9183,
     "clean_nonpunct_tokens": 947665,
+    "data_role": "PeopleDaily parsing and frozen weak-label classification selection only; not used for embedding pretraining",
     "date_end": "19980131",
     "date_start": "19980101",
     "duplicate_segment_examples": [
@@ -265,22 +270,74 @@
       "short_body": 786
     },
     "target_per_class": 50,
-    "unique_dates": 31,
-    "unsupervised_articles_included": 2678,
-    "unsupervised_excluded_reason_counts": {
-      "empty_body_no_tokens": 350,
-      "validation_or_test_id": 120
-    },
-    "unsupervised_tokens": 870023
+    "unique_dates": 31
   },
+  "classification_rows": {
+    "2class": {
+      "test": 20,
+      "train": 60,
+      "val": 20
+    },
+    "4class": {
+      "test": 40,
+      "train": 120,
+      "val": 40
+    },
+    "6class": {
+      "test": 60,
+      "train": 180,
+      "val": 60
+    }
+  },
+  "classification_thread_environment": {
+    "MKL_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1"
+  },
+  "embedding_corpus": {
+    "config": "cmn_s",
+    "cross_corpus_exact_matches_any_people_daily": 0,
+    "cross_corpus_exact_matches_validation_test": 0,
+    "cross_corpus_prefix_200_matches_any_people_daily": 0,
+    "cross_corpus_prefix_200_matches_validation_test": 0,
+    "dataset": "bltlab/lr-sum",
+    "deduplication_fingerprint": "casefold + NFKC + remove whitespace and Unicode punctuation; exact text SHA-256",
+    "embedding_corpus_sha256": "a8a12bc51f4b3826d0f10fcfe0e134bc720aca4d7d065be47a5b19fda8cf21da",
+    "embedding_manifest_sha256": "e2d90120b4646f903fde7f71db7f56ae52ad242364a681c8467f48e88f4af038",
+    "excluded_reasons": {
+      "duplicate_exact_external": 1
+    },
+    "included_articles": 482,
+    "included_tokens": 359302,
+    "jieba_version": "0.42.1",
+    "license": "CC BY 4.0",
+    "normalization": "Unicode NFKC, remove Cc/Cf/Cs controls, collapse whitespace, preserve punctuation for segmentation",
+    "parquet_bytes": 1528153,
+    "preprocessing_seconds": 3.854866800000309,
+    "revision": "deb2e73ce53e42ceda31297a991afa138ee665a8",
+    "source_labels_used": false,
+    "source_path": "data\\external\\lr_sum_cmn_s_train.parquet",
+    "source_rows": 483,
+    "source_sha256": "687db5968b23e492bfb904dc438e6ecff95f711ab93c8ef3d4d36e086d5e8630",
+    "source_url": "https://huggingface.co/datasets/bltlab/lr-sum/resolve/deb2e73ce53e42ceda31297a991afa138ee665a8/cmn_s/train-00000-of-00001.parquet",
+    "split": "train",
+    "summary_used": false,
+    "title_used": false,
+    "tokenizer": "jieba",
+    "tokens_per_article_mean": 745.4398340248963
+  },
+  "embedding_thread_environment": "not_recorded_for_embedding_checkpoint",
   "embedding_training": {
+    "checkpoint_reused_after_load_validation": true,
+    "external_revision": "deb2e73ce53e42ceda31297a991afa138ee665a8",
+    "external_source_sha256": "687db5968b23e492bfb904dc438e6ecff95f711ab93c8ef3d4d36e086d5e8630",
     "gensim_fasttext": {
       "artifact": {
-        "bytes": 57140028,
+        "bytes": 49274995,
         "path": "models\\gensim_fasttext_sg.model",
         "under_100_mib": true
       },
-      "corpus_count": 2678,
+      "corpus_count": 482,
       "params": {
         "bucket": 100000,
         "epochs": 10,
@@ -293,24 +350,45 @@
         "window": 5,
         "workers": 1
       },
-      "seconds": 39.13419249999424,
-      "vocabulary_size": 20650
+      "seconds": 374.4624466000005,
+      "vocabulary_size": 11171
     },
     "pretrained_vectors": {
-      "bytes": 8718484,
-      "exported_known_tokens": 7533,
+      "bytes": 4595678,
+      "exported_known_tokens": 3975,
       "oov_exported": 0,
       "path": "models\\gensim_fasttext_train_vocab.vec",
       "train_vocabulary_tokens": 9313
     },
-    "unsupervised_corpus_sha256": "5271e02a8a2e503aae7e421b64b913ddd1e38cdae77bca1f39c8081f8a7c9fa9",
+    "thread_environment": "not_recorded_for_embedding_checkpoint",
+    "train_vocabulary_coverage": [
+      {
+        "known_token_occurrences": 41039,
+        "known_types": 3975,
+        "model": "word2vec",
+        "token_coverage": 0.7862178627533623,
+        "train_token_occurrences": 52198,
+        "train_vocabulary_types": 9313,
+        "type_coverage": 0.42682272092773543
+      },
+      {
+        "known_token_occurrences": 41039,
+        "known_types": 3975,
+        "model": "gensim_fasttext",
+        "token_coverage": 0.7862178627533623,
+        "train_token_occurrences": 52198,
+        "train_vocabulary_types": 9313,
+        "type_coverage": 0.42682272092773543
+      }
+    ],
+    "unsupervised_corpus_sha256": "a8a12bc51f4b3826d0f10fcfe0e134bc720aca4d7d065be47a5b19fda8cf21da",
     "w2v": {
       "artifact": {
-        "bytes": 17139819,
+        "bytes": 9274787,
         "path": "models\\word2vec_sg.model",
         "under_100_mib": true
       },
-      "corpus_count": 2678,
+      "corpus_count": 482,
       "params": {
         "epochs": 10,
         "min_count": 3,
@@ -320,16 +398,21 @@
         "window": 5,
         "workers": 1
       },
-      "seconds": 27.535715199999686,
-      "vocabulary_size": 20650
+      "seconds": 1126.2136997000002,
+      "vocabulary_size": 11171
     }
   },
   "files": [
     "data\\SOURCE.md",
     "data\\cleaned_january_articles.jsonl",
     "data\\corpus_stats.json",
+    "data\\external\\lr_sum_cmn_s_train.parquet",
+    "data\\external_corpus_stats.json",
+    "data\\external_source_lock.json",
+    "data\\frozen_input_sha256.json",
     "data\\frozen_split.csv",
     "data\\label_filter_audit.csv",
+    "data\\lr_sum_cmn_s_cleaned_train.jsonl",
     "data\\selection_rules.json",
     "data\\unsupervised_corpus.txt",
     "data\\unsupervised_corpus_manifest.csv",
@@ -350,19 +433,27 @@
     "results\\fasttext_validation_curves.png",
     "results\\metrics.csv",
     "results\\predictions.csv",
-    "results\\run_metadata.json"
+    "results\\run_metadata.json",
+    "results\\train_vocabulary_coverage.csv"
   ],
   "metrics_rows": 15,
   "prediction_rows": 3000,
   "python": "3.12.7 | packaged by Anaconda, Inc. | (main, Oct  4 2024, 13:17:27) [MSC v.1929 64 bit (AMD64)]",
   "python_executable": "D:\\Softs\\anaconda\\python.exe",
   "pythonhashseed": "0",
+  "stage_timings_seconds": {
+    "classification_candidates": 34.561775999999554,
+    "embeddings_including_diagnostics": 0.40971709999939776,
+    "external_preprocessing": 3.854866800000309
+  },
   "validation_curve_rows": 18,
   "versions": {
     "fasttext_wheel": "0.9.2",
     "gensim": "4.3.3",
+    "jieba": "0.42.1",
     "matplotlib": "3.9.2",
     "numpy": "1.26.4",
+    "pyarrow": "22.0.0",
     "scikit_learn": "1.5.1",
     "scipy": "1.13.1"
   }

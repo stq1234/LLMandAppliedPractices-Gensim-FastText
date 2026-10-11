@@ -1,0 +1,3 @@
+﻿model,train_vocabulary_types,known_types,type_coverage,train_token_occurrences,known_token_occurrences,token_coverage
+word2vec,9313,3975,0.42682272092773543,52198,41039,0.7862178627533623
+gensim_fasttext,9313,3975,0.42682272092773543,52198,41039,0.7862178627533623

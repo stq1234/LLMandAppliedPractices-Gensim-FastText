@@ -1,0 +1,31 @@
+{
+  "config": "cmn_s",
+  "cross_corpus_exact_matches_any_people_daily": 0,
+  "cross_corpus_exact_matches_validation_test": 0,
+  "cross_corpus_prefix_200_matches_any_people_daily": 0,
+  "cross_corpus_prefix_200_matches_validation_test": 0,
+  "dataset": "bltlab/lr-sum",
+  "deduplication_fingerprint": "casefold + NFKC + remove whitespace and Unicode punctuation; exact text SHA-256",
+  "embedding_corpus_sha256": "a8a12bc51f4b3826d0f10fcfe0e134bc720aca4d7d065be47a5b19fda8cf21da",
+  "embedding_manifest_sha256": "e2d90120b4646f903fde7f71db7f56ae52ad242364a681c8467f48e88f4af038",
+  "excluded_reasons": {
+    "duplicate_exact_external": 1
+  },
+  "included_articles": 482,
+  "included_tokens": 359302,
+  "jieba_version": "0.42.1",
+  "license": "CC BY 4.0",
+  "normalization": "Unicode NFKC, remove Cc/Cf/Cs controls, collapse whitespace, preserve punctuation for segmentation",
+  "parquet_bytes": 1528153,
+  "revision": "deb2e73ce53e42ceda31297a991afa138ee665a8",
+  "source_labels_used": false,
+  "source_path": "data\\external\\lr_sum_cmn_s_train.parquet",
+  "source_rows": 483,
+  "source_sha256": "687db5968b23e492bfb904dc438e6ecff95f711ab93c8ef3d4d36e086d5e8630",
+  "source_url": "https://huggingface.co/datasets/bltlab/lr-sum/resolve/deb2e73ce53e42ceda31297a991afa138ee665a8/cmn_s/train-00000-of-00001.parquet",
+  "split": "train",
+  "summary_used": false,
+  "title_used": false,
+  "tokenizer": "jieba",
+  "tokens_per_article_mean": 745.4398340248963
+}

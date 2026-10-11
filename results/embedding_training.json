@@ -1,11 +1,14 @@
 {
+  "checkpoint_reused_after_load_validation": true,
+  "external_revision": "deb2e73ce53e42ceda31297a991afa138ee665a8",
+  "external_source_sha256": "687db5968b23e492bfb904dc438e6ecff95f711ab93c8ef3d4d36e086d5e8630",
   "gensim_fasttext": {
     "artifact": {
-      "bytes": 57140028,
+      "bytes": 49274995,
       "path": "models\\gensim_fasttext_sg.model",
       "under_100_mib": true
     },
-    "corpus_count": 2678,
+    "corpus_count": 482,
     "params": {
       "bucket": 100000,
       "epochs": 10,
@@ -18,24 +21,45 @@
       "window": 5,
       "workers": 1
     },
-    "seconds": 39.13419249999424,
-    "vocabulary_size": 20650
+    "seconds": 374.4624466000005,
+    "vocabulary_size": 11171
   },
   "pretrained_vectors": {
-    "bytes": 8718484,
-    "exported_known_tokens": 7533,
+    "bytes": 4595678,
+    "exported_known_tokens": 3975,
     "oov_exported": 0,
     "path": "models\\gensim_fasttext_train_vocab.vec",
     "train_vocabulary_tokens": 9313
   },
-  "unsupervised_corpus_sha256": "5271e02a8a2e503aae7e421b64b913ddd1e38cdae77bca1f39c8081f8a7c9fa9",
+  "thread_environment": "not_recorded_for_embedding_checkpoint",
+  "train_vocabulary_coverage": [
+    {
+      "known_token_occurrences": 41039,
+      "known_types": 3975,
+      "model": "word2vec",
+      "token_coverage": 0.7862178627533623,
+      "train_token_occurrences": 52198,
+      "train_vocabulary_types": 9313,
+      "type_coverage": 0.42682272092773543
+    },
+    {
+      "known_token_occurrences": 41039,
+      "known_types": 3975,
+      "model": "gensim_fasttext",
+      "token_coverage": 0.7862178627533623,
+      "train_token_occurrences": 52198,
+      "train_vocabulary_types": 9313,
+      "type_coverage": 0.42682272092773543
+    }
+  ],
+  "unsupervised_corpus_sha256": "a8a12bc51f4b3826d0f10fcfe0e134bc720aca4d7d065be47a5b19fda8cf21da",
   "w2v": {
     "artifact": {
-      "bytes": 17139819,
+      "bytes": 9274787,
       "path": "models\\word2vec_sg.model",
       "under_100_mib": true
     },
-    "corpus_count": 2678,
+    "corpus_count": 482,
     "params": {
       "epochs": 10,
       "min_count": 3,
@@ -45,7 +69,7 @@
       "window": 5,
       "workers": 1
     },
-    "seconds": 27.535715199999686,
-    "vocabulary_size": 20650
+    "seconds": 1126.2136997000002,
+    "vocabulary_size": 11171
   }
 }

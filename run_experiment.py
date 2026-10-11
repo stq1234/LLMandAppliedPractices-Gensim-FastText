@@ -4,19 +4,24 @@
 from __future__ import annotations
 
 import csv
+from collections import Counter
+import faulthandler
 import hashlib
 import json
 import os
-import re
+import shutil
 import subprocess
 import sys
 import tempfile
 import time
-import unicodedata
-import zipfile
-from collections import Counter, OrderedDict
 from pathlib import Path
-from typing import Any, Iterable
+
+from external_corpus import (
+    EXPECTED_PARQUET_SHA256,
+    RELATIVE_PARQUET,
+    build_external_corpus,
+    write_source_metadata,
+)
 
 
 # Python only reads PYTHONHASHSEED when the process starts. Re-exec once so the
@@ -35,14 +40,6 @@ MODELS = ROOT / "models"
 SCRATCH = Path(tempfile.gettempdir()) / f"pfr_fasttext_{os.getpid()}"
 
 SEED = 42
-SAMPLE_DATE = "20261009"
-EXPECTED_ARCHIVE_SHA256 = "17474bbf2b360921f2eae0089fd83e22601e5a0649943c3f59403650997b4ed2"
-EXPECTED_JAN_SHA256 = "41760f40739b0f301ab29e99ab14565e7cd4b06128eb3a6ac18bce277a6075a8"
-JAN_MEMBER = "199801/199801.txt"
-RECORD_RE = re.compile(r"^(\d{8})-(\d+)-(\d+)-(\d+)/([A-Za-z][A-Za-z0-9_-]*)$")
-POS_RE = re.compile(r"^(.*)/([A-Za-z][A-Za-z0-9_-]*)$")
-CHUNK_RE = re.compile(r"\]([A-Za-z][A-Za-z0-9_-]*)$")
-TAG_RE = re.compile(r"^[A-Za-z][A-Za-z0-9_-]*$")
 
 CATEGORY_ORDER = ["体育", "经济", "文化", "国际", "政治", "社会"]
 CATEGORY_KEYWORDS: dict[str, list[str]] = {
@@ -58,31 +55,6 @@ TASKS: dict[str, list[str]] = {
     "4class": ["体育", "经济", "文化", "国际"],
     "6class": CATEGORY_ORDER.copy(),
 }
-SELECTION_RULES = {
-    "body_min_tokens": 80,
-    "body_max_input_tokens": 500,
-    "remove_pos": True,
-    "remove_punctuation_pos": "w",
-    "title_segment": "001",
-    "keyword_matching": "exact token match after POS/chunk cleanup",
-    "single_category_only": True,
-    "same_category_multiple_keyword_tokens_allowed": True,
-    "title_in_supervised_text": False,
-    "per_category_target": 50,
-    "fallback_per_category": 40,
-    "selection_salt": f"{SAMPLE_DATE}:select:",
-    "split_salt": f"{SAMPLE_DATE}:split:",
-    "split_for_50": {"train": 30, "val": 10, "test": 10},
-    "split_for_40": {"train": 24, "val": 8, "test": 8},
-    "category_order": CATEGORY_ORDER,
-    "categories": CATEGORY_KEYWORDS,
-    "tasks": TASKS,
-    "social_scope_note": "社会为广义民生/社会议题，和经济、政治、文化可能交叉；跨类别标题命中会被剔除，但弱标签仍可能有语义噪声。",
-    "international_scope_note": "只用外国国名、联合国和外交相关词；不使用国际、亚洲、欧洲、中东等泛词。",
-    "politics_scope_note": "使用核心政治机构/制度词；不使用国家、会议、领导、总统、中央、政策等泛词。",
-}
-
-
 def sha256_bytes(value: bytes) -> str:
     return hashlib.sha256(value).hexdigest()
 
@@ -100,13 +72,6 @@ def write_json(path: Path, value: Any) -> None:
     path.write_text(json.dumps(value, ensure_ascii=False, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
 
-def write_jsonl(path: Path, rows: Iterable[dict[str, Any]]) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("w", encoding="utf-8", newline="\n") as handle:
-        for row in rows:
-            handle.write(json.dumps(row, ensure_ascii=False, separators=(",", ":")) + "\n")
-
-
 def write_csv(path: Path, rows: list[dict[str, Any]], fields: list[str]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", encoding="utf-8-sig", newline="") as handle:
@@ -120,130 +85,6 @@ def read_csv(path: Path) -> list[dict[str, str]]:
         return list(csv.DictReader(handle))
 
 
-def decode_pfr_token(piece: str) -> tuple[str, str]:
-    chunk = CHUNK_RE.search(piece)
-    if chunk:
-        piece = piece[: chunk.start()]
-    if piece.endswith("/%"):
-        piece = piece[:-2]
-    match = POS_RE.fullmatch(piece)
-    if not match or not TAG_RE.fullmatch(match.group(2)):
-        raise ValueError(f"无法解析 PFR 词性片段: {piece!r}")
-    token, pos = match.groups()
-    token = "".join(char for char in token if unicodedata.category(char) != "Cc")
-    token = token.replace("[", "").replace("]", "")
-    return token, pos
-
-
-def extract_january(source: Path) -> tuple[list[dict[str, Any]], dict[str, Any]]:
-    source = source.expanduser().resolve()
-    if not source.is_file() or not zipfile.is_zipfile(source):
-        raise ValueError(f"源文件不存在或不是 ZIP: {source}")
-    archive_bytes = source.read_bytes()
-    archive_hash = sha256_bytes(archive_bytes)
-    if archive_hash != EXPECTED_ARCHIVE_SHA256:
-        raise ValueError(f"ZIP 摘要不符合冻结源: expected={EXPECTED_ARCHIVE_SHA256}, actual={archive_hash}")
-
-    groups: OrderedDict[str, dict[str, Any]] = OrderedDict()
-    pos_counts: Counter[str] = Counter()
-    segment_occurrences: dict[tuple[str, int], list[int]] = {}
-    record_count = blank_count = physical_lines = punct_count = chunk_count = 0
-    dates: set[str] = set()
-    with zipfile.ZipFile(source) as archive:
-        if JAN_MEMBER not in archive.namelist():
-            raise ValueError(f"ZIP 中缺少一月成员 {JAN_MEMBER}")
-        raw = archive.read(JAN_MEMBER)
-    jan_hash = sha256_bytes(raw)
-    if jan_hash != EXPECTED_JAN_SHA256:
-        raise ValueError(f"一月成员摘要不符合冻结源: expected={EXPECTED_JAN_SHA256}, actual={jan_hash}")
-    text = raw.decode("utf-8-sig", errors="strict")
-    for line_no, line in enumerate(text.splitlines(), start=1):
-        physical_lines += 1
-        pieces = line.strip().split()
-        if not pieces:
-            blank_count += 1
-            continue
-        match = RECORD_RE.fullmatch(pieces[0])
-        if not match:
-            raise ValueError(f"{JAN_MEMBER}:{line_no} 记录编号格式错误: {pieces[0]!r}")
-        date, edition, article, segment, _record_pos = match.groups()
-        article_id = f"{date}-{edition}-{article}"
-        dates.add(date)
-        record_count += 1
-        segments = groups.setdefault(article_id, {"segments": [], "date": date, "edition": edition, "article": article})["segments"]
-        segment_id = int(segment)
-        segment_occurrences.setdefault((article_id, segment_id), []).append(line_no)
-        tokens: list[str] = []
-        for piece in pieces[1:]:
-            chunk_count += int(bool(CHUNK_RE.search(piece)))
-            token, pos = decode_pfr_token(piece)
-            pos_counts[pos] += 1
-            if pos == "w":
-                punct_count += 1
-                continue
-            if token:
-                tokens.append(token)
-        if not tokens:
-            # Empty lines are handled before parsing; a punctuation-only record is not useful here.
-            continue
-        # Some source records reuse a segment number; retain every line in source order.
-        segments.append({"segment_id": segment_id, "tokens": tokens})
-
-    articles: list[dict[str, Any]] = []
-    for article_id, raw_article in groups.items():
-        segments: list[dict[str, Any]] = raw_article["segments"]
-        title_record = next((row for row in segments if row["segment_id"] == 1), None)
-        title_tokens = title_record["tokens"] if title_record else []
-        body_tokens = [token for row in segments if row["segment_id"] != 1 for token in row["tokens"]]
-        title = " ".join(title_tokens)
-        body_text = " ".join(body_tokens)
-        articles.append({
-            "article_id": article_id,
-            "date": raw_article["date"],
-            "edition": raw_article["edition"],
-            "article_number": raw_article["article"],
-            "has_title_segment": bool(title_tokens),
-            "segment_count": len(segments),
-            "title_tokens": title_tokens,
-            "title": title,
-            "body_token_count": len(body_tokens),
-            "body_tokens": body_tokens,
-            "body_text": body_text,
-        })
-
-    duplicate_segments = [
-        {"article_id": article_id, "segment_id": segment_id, "source_line_numbers": line_numbers}
-        for (article_id, segment_id), line_numbers in segment_occurrences.items()
-        if len(line_numbers) > 1
-    ]
-    stats = {
-        "source_name": source.name,
-        "archive_bytes": len(archive_bytes),
-        "archive_sha256": archive_hash,
-        "source_member": JAN_MEMBER,
-        "source_member_bytes": len(raw),
-        "source_member_sha256": jan_hash,
-        "encoding": "utf-8-sig",
-        "physical_lines": physical_lines,
-        "blank_lines": blank_count,
-        "records": record_count,
-        "unique_dates": len(dates),
-        "date_start": min(dates) if dates else "",
-        "date_end": max(dates) if dates else "",
-        "articles": len(articles),
-        "articles_missing_title_segment": sum(not row["has_title_segment"] for row in articles),
-        "articles_body_ge_80": sum(row["has_title_segment"] and row["body_token_count"] >= 80 for row in articles),
-        "clean_nonpunct_tokens": sum(row["body_token_count"] + len(row["title_tokens"]) for row in articles),
-        "pos_tags": dict(sorted(pos_counts.items())),
-        "punctuation_tokens_dropped": punct_count,
-        "chunk_markers_encountered": chunk_count,
-        "duplicate_segment_keys": len(duplicate_segments),
-        "duplicate_segment_records_extra": sum(len(row["source_line_numbers"]) - 1 for row in duplicate_segments),
-        "duplicate_segment_examples": duplicate_segments,
-    }
-    return articles, stats
-
-
 def classify_title(title_tokens: list[str]) -> tuple[list[str], dict[str, list[str]]]:
     matched: dict[str, list[str]] = {}
     for category in CATEGORY_ORDER:
@@ -253,150 +94,47 @@ def classify_title(title_tokens: list[str]) -> tuple[list[str], dict[str, list[s
     return list(matched), matched
 
 
-def freeze_dataset(source: Path) -> dict[str, Any]:
-    articles, stats = extract_january(source)
-    DATA.mkdir(parents=True, exist_ok=True)
-    write_jsonl(DATA / "cleaned_january_articles.jsonl", articles)
-    write_json(DATA / "selection_rules.json", SELECTION_RULES)
-
-    candidate_rows: list[dict[str, Any]] = []
-    audit_rows: list[dict[str, Any]] = []
-    status_counts: Counter[str] = Counter()
-    for article in articles:
-        if not article["has_title_segment"]:
-            status = "missing_title"
-            hits: list[str] = []
-            matched: dict[str, list[str]] = {}
-        else:
-            hits, matched = classify_title(article["title_tokens"])
-            if article["body_token_count"] < SELECTION_RULES["body_min_tokens"]:
-                status = "short_body"
-            elif not hits:
-                status = "no_keyword_hit"
-            elif len(hits) > 1:
-                status = "cross_category_hit"
-            else:
-                status = "candidate"
-                category = hits[0]
-                candidate_rows.append({
-                    "article_id": article["article_id"],
-                    "label": category,
-                    "title": article["title"],
-                    "body_token_count": article["body_token_count"],
-                    "matched_keywords": "|".join(matched[category]),
-                    "selection_hash": salted_hash(SELECTION_RULES["selection_salt"], article["article_id"]),
-                })
-        status_counts[status] += 1
-        audit_rows.append({
-            "article_id": article["article_id"],
-            "title": article["title"],
-            "body_token_count": article["body_token_count"],
-            "has_title_segment": article["has_title_segment"],
-            "hit_categories": "|".join(hits),
-            "matched_keywords_json": json.dumps(matched, ensure_ascii=False, sort_keys=True),
-            "status": status,
-        })
-
-    # Keep a single six-class sample. The 2- and 4-class tasks are literal nested subsets.
-    selected_rows: list[dict[str, Any]] = []
-    target_per_class = 50 if all(sum(row["label"] == label for row in candidate_rows) >= 50 for label in CATEGORY_ORDER) else 40
-    split_counts = SELECTION_RULES["split_for_50"] if target_per_class == 50 else SELECTION_RULES["split_for_40"]
-    for label in CATEGORY_ORDER:
-        pool = [row for row in candidate_rows if row["label"] == label]
-        pool.sort(key=lambda row: (row["selection_hash"], row["article_id"]))
-        minimum = SELECTION_RULES["fallback_per_category"]
-        if len(pool) < minimum:
-            raise ValueError(f"类别 {label} 只有 {len(pool)} 篇标题单命中且正文达标文章，低于最低 {minimum}；停止选样。")
-        chosen = pool[:target_per_class]
-        chosen.sort(key=lambda row: (salted_hash(SELECTION_RULES["split_salt"], row["article_id"]), row["article_id"]))
-        for index, row in enumerate(chosen):
-            if index < split_counts["train"]:
-                split = "train"
-            elif index < split_counts["train"] + split_counts["val"]:
-                split = "val"
-            else:
-                split = "test"
-            article = next(item for item in articles if item["article_id"] == row["article_id"])
-            max_tokens = SELECTION_RULES["body_max_input_tokens"]
-            body_tokens = article["body_tokens"][:max_tokens]
-            selected_rows.append({
-                "article_id": row["article_id"],
-                "label": label,
-                "split": split,
-                "selection_hash": row["selection_hash"],
-                "split_hash": salted_hash(SELECTION_RULES["split_salt"], row["article_id"]),
-                "title": article["title"],
-                "body_token_count": article["body_token_count"],
-                "input_token_count": len(body_tokens),
-                "body_text": " ".join(body_tokens),
-                "matched_keywords": row["matched_keywords"],
-            })
-
-    selected_ids = {row["article_id"] for row in selected_rows}
-    evaluation_rows = [row for row in selected_rows if row["split"] in {"val", "test"}]
-    evaluation_ids = {row["article_id"] for row in evaluation_rows}
-    article_by_id = {row["article_id"]: row for row in articles}
-    eval_full_hashes = {sha256_text(article_by_id[row["article_id"]]["body_text"]) for row in evaluation_rows}
-    eval_prefix_hashes = {sha256_text(article_by_id[row["article_id"]]["body_text"][:200]) for row in evaluation_rows}
-    unsup_rows: list[dict[str, Any]] = []
-    unsup_manifest: list[dict[str, Any]] = []
-    for article in articles:
-        body = article["body_text"]
-        full_hash = sha256_text(body)
-        prefix_hash = sha256_text(body[:200])
-        if article["article_id"] in evaluation_ids:
-            reason = "validation_or_test_id"
-        elif full_hash in eval_full_hashes:
-            reason = "duplicate_full_body_of_validation_or_test"
-        elif prefix_hash in eval_prefix_hashes:
-            reason = "duplicate_first_200_chars_of_validation_or_test"
-        elif not article["body_tokens"]:
-            reason = "empty_body_no_tokens"
-        else:
-            reason = "included"
-            unsup_rows.append({"article_id": article["article_id"], "tokens": article["body_tokens"]})
-        unsup_manifest.append({
-            "article_id": article["article_id"],
-            "body_token_count": article["body_token_count"],
-            "full_body_sha256": full_hash,
-            "first_200_chars_sha256": prefix_hash,
-            "included": reason == "included",
-            "reason": reason,
-        })
-
-    write_csv(DATA / "weak_label_candidates.csv", candidate_rows, ["article_id", "label", "title", "body_token_count", "matched_keywords", "selection_hash"])
-    write_csv(DATA / "label_filter_audit.csv", audit_rows, ["article_id", "title", "body_token_count", "has_title_segment", "hit_categories", "matched_keywords_json", "status"])
-    write_csv(DATA / "frozen_split.csv", selected_rows, ["article_id", "label", "split", "selection_hash", "split_hash", "title", "body_token_count", "input_token_count", "body_text", "matched_keywords"])
-    write_csv(DATA / "unsupervised_corpus_manifest.csv", unsup_manifest, ["article_id", "body_token_count", "full_body_sha256", "first_200_chars_sha256", "included", "reason"])
-    DATA.joinpath("unsupervised_corpus.txt").write_text("".join(" ".join(row["tokens"]) + "\n" for row in unsup_rows), encoding="utf-8", newline="\n")
-
-    candidate_counts = {label: sum(row["label"] == label for row in candidate_rows) for label in CATEGORY_ORDER}
-    selected_counts = {label: sum(row["label"] == label for row in selected_rows) for label in CATEGORY_ORDER}
-    split_by_label = {label: {split: sum(row["label"] == label and row["split"] == split for row in selected_rows) for split in ("train", "val", "test")} for label in CATEGORY_ORDER}
-    stats.update({
-        "status_counts": dict(sorted(status_counts.items())),
-        "single_category_candidates_under_six_class_rules": candidate_counts,
-        "target_per_class": target_per_class,
-        "selected_counts": selected_counts,
-        "split_counts_by_label": split_by_label,
-        "selected_articles": len(selected_rows),
-        "unsupervised_articles_included": len(unsup_rows),
-        "unsupervised_excluded_reason_counts": dict(Counter(row["reason"] for row in unsup_manifest if row["reason"] != "included")),
-        "unsupervised_tokens": sum(len(row["tokens"]) for row in unsup_rows),
-    })
-    write_json(DATA / "corpus_stats.json", stats)
-    return stats
-
-
-def load_jsonl(path: Path) -> list[dict[str, Any]]:
-    with path.open("r", encoding="utf-8") as handle:
-        return [json.loads(line) for line in handle if line.strip()]
-
-
 def maybe_save_gensim_model(model: Any, path: Path) -> dict[str, Any]:
     model.save(str(path))
     size = path.stat().st_size
     return {"path": str(path.relative_to(ROOT)), "bytes": size, "under_100_mib": size < 100 * 1024 * 1024}
+
+
+def write_train_vocabulary_artifacts(w2v: Any, ft: Any) -> tuple[list[str], list[dict[str, Any]], Path]:
+    selected = read_csv(DATA / "frozen_split.csv")
+    train_token_counts = Counter(
+        token for row in selected if row["split"] == "train" for token in row["body_text"].split()
+    )
+    train_vocab = sorted(train_token_counts)
+    coverage_rows: list[dict[str, Any]] = []
+    for name, keyed_vectors in (("word2vec", w2v.wv), ("gensim_fasttext", ft.wv)):
+        known = set(train_vocab).intersection(keyed_vectors.key_to_index)
+        known_occurrences = sum(train_token_counts[token] for token in known)
+        total_occurrences = sum(train_token_counts.values())
+        coverage_rows.append({
+            "model": name,
+            "train_vocabulary_types": len(train_vocab),
+            "known_types": len(known),
+            "type_coverage": len(known) / len(train_vocab) if train_vocab else 0,
+            "train_token_occurrences": total_occurrences,
+            "known_token_occurrences": known_occurrences,
+            "token_coverage": known_occurrences / total_occurrences if total_occurrences else 0,
+        })
+    write_csv(
+        RESULTS / "train_vocabulary_coverage.csv",
+        coverage_rows,
+        ["model", "train_vocabulary_types", "known_types", "type_coverage", "train_token_occurrences", "known_token_occurrences", "token_coverage"],
+    )
+    pretrained_path = MODELS / "gensim_fasttext_train_vocab.vec"
+    written = 0
+    with pretrained_path.open("w", encoding="utf-8", newline="\n") as handle:
+        known = [token for token in train_vocab if token in ft.wv.key_to_index]
+        handle.write(f"{len(known)} {ft.vector_size}\n")
+        for token in known:
+            vector = ft.wv.get_vector(token)
+            handle.write(token + " " + " ".join(f"{float(value):.8f}" for value in vector) + "\n")
+            written += 1
+    return train_vocab, coverage_rows, pretrained_path
 
 
 def train_embeddings() -> tuple[Any, Any, dict[str, Any]]:
@@ -411,12 +149,40 @@ def train_embeddings() -> tuple[Any, Any, dict[str, Any]]:
     w2v_path = MODELS / "word2vec_sg.model"
     ft_path = MODELS / "gensim_fasttext_sg.model"
     corpus_hash = sha256_bytes(corpus_path.read_bytes())
+    external_stats = json.loads((DATA / "external_corpus_stats.json").read_text(encoding="utf-8"))
     if saved_meta_path.is_file() and w2v_path.is_file() and ft_path.is_file():
         cached_meta = json.loads(saved_meta_path.read_text(encoding="utf-8"))
-        if cached_meta.get("unsupervised_corpus_sha256") == corpus_hash:
+        if (
+            cached_meta.get("unsupervised_corpus_sha256") == corpus_hash
+            and cached_meta.get("external_source_sha256") == external_stats["source_sha256"]
+            and cached_meta.get("external_revision") == external_stats["revision"]
+        ):
+            print("[stage] reuse hash-matched completed embedding checkpoint", flush=True)
             w2v = Word2Vec.load(str(w2v_path))
             ft = FastText.load(str(ft_path))
+            assert w2v.corpus_count == ft.corpus_count == 482
+            assert all(
+                model.sg == 1 and model.vector_size == 100 and model.window == 5
+                and model.min_count == 3 and model.epochs == 10 and model.workers == 1
+                and model.seed == SEED
+                for model in (w2v, ft)
+            )
+            train_vocab, coverage_rows, pretrained_path = write_train_vocabulary_artifacts(w2v, ft)
+            expected_train_vocab = len(train_vocab)
+            known_ft = sum(token in ft.wv.key_to_index for token in train_vocab)
+            cached_meta["pretrained_vectors"] = {
+                "path": str(pretrained_path.relative_to(ROOT)),
+                "bytes": pretrained_path.stat().st_size,
+                "train_vocabulary_tokens": expected_train_vocab,
+                "exported_known_tokens": known_ft,
+                "oov_exported": 0,
+            }
+            cached_meta["train_vocabulary_coverage"] = coverage_rows
+            cached_meta["checkpoint_reused_after_load_validation"] = True
+            cached_meta["thread_environment"] = "not_recorded_for_embedding_checkpoint"
+            write_json(saved_meta_path, cached_meta)
             return w2v, ft, cached_meta
+    print(f"[stage] Word2Vec SG training start corpus_sha256={corpus_hash}", flush=True)
     sentence_source = LineSentence(str(corpus_path))
     start = time.perf_counter()
     w2v = Word2Vec(
@@ -427,7 +193,9 @@ def train_embeddings() -> tuple[Any, Any, dict[str, Any]]:
     w2v.train(sentence_source, total_examples=w2v.corpus_count, epochs=10)
     w2v_seconds = time.perf_counter() - start
     w2v_meta = maybe_save_gensim_model(w2v, MODELS / "word2vec_sg.model")
+    print(f"[stage] Word2Vec SG done seconds={w2v_seconds:.2f} vocab={len(w2v.wv)}", flush=True)
 
+    print("[stage] Gensim FastText SG training start", flush=True)
     sentence_source = LineSentence(str(corpus_path))
     start = time.perf_counter()
     ft = FastText(
@@ -438,24 +206,19 @@ def train_embeddings() -> tuple[Any, Any, dict[str, Any]]:
     ft.train(sentence_source, total_examples=ft.corpus_count, epochs=10)
     ft_seconds = time.perf_counter() - start
     ft_meta = maybe_save_gensim_model(ft, MODELS / "gensim_fasttext_sg.model")
+    print(f"[stage] Gensim FastText SG done seconds={ft_seconds:.2f} vocab={len(ft.wv)}", flush=True)
 
-    selected = read_csv(DATA / "frozen_split.csv")
-    train_vocab = sorted({token for row in selected if row["split"] == "train" for token in row["body_text"].split()})
-    pretrained_path = MODELS / "gensim_fasttext_train_vocab.vec"
-    written = 0
-    with pretrained_path.open("w", encoding="utf-8", newline="\n") as handle:
-        known = [token for token in train_vocab if token in ft.wv.key_to_index]
-        handle.write(f"{len(known)} {ft.vector_size}\n")
-        for token in known:
-            vector = ft.wv.get_vector(token)
-            handle.write(token + " " + " ".join(f"{float(value):.8f}" for value in vector) + "\n")
-            written += 1
+    train_vocab, coverage_rows, pretrained_path = write_train_vocabulary_artifacts(w2v, ft)
+    written = sum(token in ft.wv.key_to_index for token in train_vocab)
 
     meta = {
         "w2v": {"seconds": w2v_seconds, "vocabulary_size": len(w2v.wv), "corpus_count": w2v.corpus_count, "artifact": w2v_meta, "params": {"sg": 1, "vector_size": 100, "window": 5, "min_count": 3, "epochs": 10, "workers": 1, "seed": SEED}},
         "gensim_fasttext": {"seconds": ft_seconds, "vocabulary_size": len(ft.wv), "corpus_count": ft.corpus_count, "artifact": ft_meta, "params": {"sg": 1, "vector_size": 100, "window": 5, "min_count": 3, "epochs": 10, "workers": 1, "seed": SEED, "min_n": 2, "max_n": 4, "bucket": 100000}},
         "pretrained_vectors": {"path": str(pretrained_path.relative_to(ROOT)), "bytes": pretrained_path.stat().st_size, "train_vocabulary_tokens": len(train_vocab), "exported_known_tokens": written, "oov_exported": 0},
+        "train_vocabulary_coverage": coverage_rows,
         "unsupervised_corpus_sha256": sha256_bytes(corpus_path.read_bytes()),
+        "external_source_sha256": json.loads((DATA / "external_corpus_stats.json").read_text(encoding="utf-8"))["source_sha256"],
+        "external_revision": json.loads((DATA / "external_corpus_stats.json").read_text(encoding="utf-8"))["revision"],
     }
     write_json(saved_meta_path, meta)
     return w2v, ft, meta
@@ -748,14 +511,15 @@ def make_charts(metrics_rows: list[dict[str, Any]], predictions: list[dict[str, 
     plt.close(figure)
 
     split_rows = read_csv(DATA / "frozen_split.csv")
-    class_counts = [sum(row["label"] == label for row in split_rows) for label in CATEGORY_ORDER]
     split_counts = [sum(row["split"] == split for row in split_rows) for split in ("train", "val", "test")]
+    external_stats = json.loads((DATA / "external_corpus_stats.json").read_text(encoding="utf-8"))
+    external_counts = [int(external_stats["included_articles"]), int(external_stats["source_rows"]) - int(external_stats["included_articles"])]
     figure, axes = plt.subplots(1, 2, figsize=(12, 5.5), constrained_layout=True)
-    axes[0].pie(class_counts, labels=[f"{label} ({count})" for label, count in zip(CATEGORY_ORDER, class_counts)], autopct="%1.1f%%", startangle=90, wedgeprops={"edgecolor": "white", "linewidth": 1})
-    axes[0].set_title("六类固定样本分布")
+    axes[0].pie(external_counts, labels=[f"{label} ({count})" for label, count in zip(("外部词向量训练语料", "去重/隔离后排除"), external_counts)], autopct="%1.1f%%", startangle=90, wedgeprops={"edgecolor": "white", "linewidth": 1})
+    axes[0].set_title("LR-Sum cmn_s train 正文")
     axes[1].pie(split_counts, labels=[f"{name} ({count})" for name, count in zip(("训练", "验证", "测试"), split_counts)], autopct="%1.1f%%", startangle=90, colors=["#176B87", "#D97706", "#57A773"], wedgeprops={"edgecolor": "white", "linewidth": 1})
-    axes[1].set_title("按类别哈希分层的固定拆分")
-    figure.suptitle("实际筛选样本计数")
+    axes[1].set_title("PeopleDaily 六类监督样本（各类等量）")
+    figure.suptitle("表示学习与分类数据实际计数")
     figure.savefig(RESULTS / "data_split_counts.png", dpi=200, bbox_inches="tight")
     plt.close(figure)
 
@@ -799,19 +563,40 @@ def make_charts(metrics_rows: list[dict[str, Any]], predictions: list[dict[str, 
 def run_training() -> dict[str, Any]:
     import fasttext
     import gensim
+    import importlib.metadata
     import matplotlib
     import numpy
+    import pyarrow
     import scipy
     import sklearn
+    import jieba
+
+    frozen_hashes = json.loads((DATA / "frozen_input_sha256.json").read_text(encoding="utf-8"))
+    print("[stage] verify frozen PeopleDaily inputs", flush=True)
+    for filename, expected_hash in frozen_hashes.items():
+        actual_hash = sha256_bytes((DATA / filename).read_bytes())
+        if actual_hash != expected_hash:
+            raise ValueError(f"冻结 PeopleDaily 输入摘要改变：{filename}: {actual_hash} != {expected_hash}")
+    print("[stage] normalize and tokenize pinned LR-Sum corpus", flush=True)
+    external_started = time.perf_counter()
+    external_stats = build_external_corpus(ROOT)
+    external_stats["preprocessing_seconds"] = time.perf_counter() - external_started
+    write_source_metadata(ROOT, frozen_hashes)
+    print(f"[stage] LR-Sum corpus ready articles={external_stats['included_articles']} tokens={external_stats['included_tokens']} seconds={external_stats['preprocessing_seconds']:.2f}", flush=True)
 
     rows = load_samples()
     RESULTS.mkdir(parents=True, exist_ok=True)
+    print("[stage] train embeddings", flush=True)
+    embedding_started = time.perf_counter()
     w2v, ft, embedding_meta = train_embeddings()
+    embedding_elapsed = time.perf_counter() - embedding_started
+    print(f"[stage] embeddings ready seconds={embedding_elapsed:.2f}", flush=True)
     embedding_diagnostics(w2v, ft)
     pretrained_path = MODELS / "gensim_fasttext_train_vocab.vec"
     metrics_rows: list[dict[str, Any]] = []
     predictions: list[dict[str, Any]] = []
     validation_curves: list[dict[str, Any]] = []
+    classification_started = time.perf_counter()
     for task in TASKS:
         print(f"[task-start] {task}", flush=True)
         row, preds = fit_sklearn_baseline(rows, task, "tfidf_logreg", None, 0.0)
@@ -829,6 +614,8 @@ def run_training() -> dict[str, Any]:
             predictions.extend(preds)
             validation_curves.extend(curve)
 
+    classification_elapsed = time.perf_counter() - classification_started
+    print(f"[stage] classification candidates done seconds={classification_elapsed:.2f}", flush=True)
     metric_fields = ["task", "method", "initialization", "selected_epoch", "train_n", "val_n", "test_n", "train_accuracy", "train_macro_f1", "val_accuracy", "val_macro_f1", "test_accuracy", "test_macro_f1", "fit_seconds", "representation_pretrain_seconds", "parameters_json", "model_saved", "model_bytes"]
     write_csv(RESULTS / "metrics.csv", metrics_rows, metric_fields)
     write_csv(RESULTS / "predictions.csv", predictions, ["task", "method", "initialization", "split", "article_id", "true_label", "predicted_label", "correct", "confidence"])
@@ -842,13 +629,17 @@ def run_training() -> dict[str, Any]:
         "python": sys.version,
         "python_executable": sys.executable,
         "pythonhashseed": os.environ.get("PYTHONHASHSEED"),
-        "versions": {"gensim": gensim.__version__, "numpy": numpy.__version__, "scipy": scipy.__version__, "scikit_learn": sklearn.__version__, "matplotlib": matplotlib.__version__, "fasttext_wheel": "0.9.2"},
-        "corpus": archive_stats,
+        "classification_thread_environment": {name: os.environ.get(name) for name in ("OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS")},
+        "embedding_thread_environment": embedding_meta.get("thread_environment", "not_recorded_for_embedding_checkpoint"),
+        "versions": {"gensim": gensim.__version__, "numpy": numpy.__version__, "scipy": scipy.__version__, "scikit_learn": sklearn.__version__, "matplotlib": matplotlib.__version__, "pyarrow": pyarrow.__version__, "jieba": jieba.__version__, "fasttext_wheel": importlib.metadata.version("fasttext-wheel")},
+        "classification_corpus": archive_stats,
+        "embedding_corpus": external_stats,
         "embedding_training": embedding_meta,
         "classification_rows": {task: {split: sum(row["label"] in TASKS[task] and row["split"] == split for row in rows) for split in ("train", "val", "test")} for task in TASKS},
         "metrics_rows": len(metrics_rows),
         "prediction_rows": len(predictions),
         "validation_curve_rows": len(validation_curves),
+        "stage_timings_seconds": {"external_preprocessing": external_stats["preprocessing_seconds"], "embeddings_including_diagnostics": embedding_elapsed, "classification_candidates": classification_elapsed},
         "files": [str(path.relative_to(ROOT)) for path in sorted(RESULTS.iterdir()) if path.is_file()],
     }
     write_json(RESULTS / "run_metadata.json", run_meta)
@@ -859,17 +650,25 @@ def main() -> int:
     import argparse
 
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--source", type=Path, help="本地 PeopleDaily1998 ZIP；指定时重建并冻结一月样本")
-    args = parser.parse_args()
-    if args.source:
-        stats = freeze_dataset(args.source)
-        print(f"[freeze] articles={stats['articles']} body_ge_80={stats['articles_body_ge_80']} candidates={stats['single_category_candidates_under_six_class_rules']} selected={stats['selected_counts']} splits={stats['split_counts_by_label']}", flush=True)
-    elif not (DATA / "frozen_split.csv").is_file() or not (DATA / "unsupervised_corpus.txt").is_file():
-        raise SystemExit("未找到冻结小样本。首次运行请提供 --source <人民日报1998_PFR.zip>。")
+    parser.parse_args()
+    if not (DATA / "frozen_split.csv").is_file() or not (ROOT / RELATIVE_PARQUET).is_file():
+        raise SystemExit("需要随项目提供冻结 PeopleDaily 分类样本和 data/external 下固定 revision 的 LR-Sum cmn_s train Parquet；见 README.md 与 data/SOURCE.md。")
+    actual_external_hash = sha256_bytes((ROOT / RELATIVE_PARQUET).read_bytes())
+    if actual_external_hash != EXPECTED_PARQUET_SHA256:
+        raise SystemExit(f"LR-Sum Parquet SHA256 不匹配：{actual_external_hash}")
+    diagnostic_path = Path(tempfile.gettempdir()) / f"pfr_fasttext_diagnostic_{os.getpid()}.log"
+    diagnostic_handle = diagnostic_path.open("w", encoding="utf-8")
+    faulthandler.enable(file=diagnostic_handle)
+    faulthandler.dump_traceback_later(60, repeat=True, file=diagnostic_handle)
+    completed = False
     try:
+        print(f"[stage] diagnostics armed path={diagnostic_path}", flush=True)
         metadata = run_training()
         from audit import audit
+        print("[stage] independent audit start", flush=True)
+        audit_started = time.perf_counter()
         audit_report = audit(ROOT)
+        print(f"[stage] independent audit done seconds={time.perf_counter() - audit_started:.2f} status={audit_report.get('status')}", flush=True)
         metadata["audit"] = audit_report
         metadata["files"] = sorted(
             str(path.relative_to(ROOT))
@@ -878,14 +677,18 @@ def main() -> int:
             if path.is_file()
         )
         write_json(RESULTS / "run_metadata.json", metadata)
+        completed = True
     except ImportError:
         raise
     finally:
+        faulthandler.cancel_dump_traceback_later()
+        diagnostic_handle.close()
         # fastText's Windows C++ layer cannot open the Chinese workspace path;
         # keep only its disposable UTF-8 train inputs in an ASCII temp folder.
         if SCRATCH.exists() and SCRATCH.resolve().parent == Path(tempfile.gettempdir()).resolve() and SCRATCH.name.startswith("pfr_fasttext_"):
-            import shutil
             shutil.rmtree(SCRATCH)
+        if completed and diagnostic_path.is_file():
+            diagnostic_path.unlink()
     print(f"[done] metrics={RESULTS / 'metrics.csv'} predictions={RESULTS / 'predictions.csv'} audit={RESULTS / 'audit_report.json'} seed={SEED}; pythonhashseed={metadata['pythonhashseed']}", flush=True)
     return 0
 

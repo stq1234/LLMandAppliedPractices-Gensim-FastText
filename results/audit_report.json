@@ -7,6 +7,28 @@
     "社会": 50,
     "经济": 50
   },
+  "embedding_checkpoints_loaded_and_parameters_verified": true,
+  "embedding_source": {
+    "config": "cmn_s",
+    "cross_corpus_eval_exact_matches": 0,
+    "cross_corpus_eval_prefix_200_matches": 0,
+    "cross_corpus_exact_matches_any_people_daily": 0,
+    "cross_corpus_prefix_200_matches_any_people_daily": 0,
+    "dataset": "bltlab/lr-sum",
+    "excluded_reason_counts": {
+      "duplicate_exact_external": 1
+    },
+    "included_articles": 482,
+    "included_tokens": 359302,
+    "revision": "deb2e73ce53e42ceda31297a991afa138ee665a8",
+    "source_rows": 483,
+    "source_sha256": "687db5968b23e492bfb904dc438e6ecff95f711ab93c8ef3d4d36e086d5e8630",
+    "split": "train",
+    "title_summary_labels_used": false
+  },
+  "evaluation_text_absent_from_external_embeddings": true,
+  "fasttext_known_train_vocabulary_types": 3975,
+  "frozen_classification_inputs_unchanged": true,
   "metric_groups_recomputed": 45,
   "nested_task_split_counts": {
     "2class": {
@@ -71,9 +93,11 @@
     }
   },
   "prediction_rows": 3000,
+  "pretrained_vec_rows": 3975,
+  "pretrained_vec_zero_vectors": 0,
   "selected_articles": 300,
   "six_class_test_confusion_total": 60,
-  "six_class_test_errors": 15,
+  "six_class_test_errors": 17,
   "split_counts_by_label": {
     "体育": {
       "test": 10,
@@ -107,11 +131,8 @@
     }
   },
   "status": "PASS",
+  "train_vocabulary_types": 9313,
   "unsupervised_excluded_reason_counts": {
-    "empty_body_no_tokens": 350,
-    "validation_or_test_id": 120
-  },
-  "unsupervised_included_articles": 2678,
-  "validation_test_body_and_prefix_duplicates_absent": true,
-  "validation_test_ids_absent_from_unsupervised": true
+    "duplicate_exact_external": 1
+  }
 }

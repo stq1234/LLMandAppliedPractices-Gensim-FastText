@@ -7,6 +7,7 @@
   "blank_lines": 3080,
   "chunk_markers_encountered": 9183,
   "clean_nonpunct_tokens": 947665,
+  "data_role": "PeopleDaily parsing and frozen weak-label classification selection only; not used for embedding pretraining",
   "date_end": "19980131",
   "date_start": "19980101",
   "duplicate_segment_examples": [
@@ -130,11 +131,5 @@
     "short_body": 786
   },
   "target_per_class": 50,
-  "unique_dates": 31,
-  "unsupervised_articles_included": 2678,
-  "unsupervised_excluded_reason_counts": {
-    "empty_body_no_tokens": 350,
-    "validation_or_test_id": 120
-  },
-  "unsupervised_tokens": 870023
+  "unique_dates": 31
 }

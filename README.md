@@ -1,52 +1,45 @@
-# Gensim Word2Vec / FastText 与监督文本分类
+# Gensim 表示学习与官方 fastText 文本分类
 
-项目使用人民日报 1998 年 1 月已有的词性分词训练 Gensim Skip-gram Word2Vec 和 FastText，并比较 TF-IDF、冻结词向量均值和官方 fastText 监督分类。分类输入只包含正文前 500 个词，不含标题。
+本项目把表示学习语料和监督分类语料分开：Gensim Word2Vec/FastText 只使用独立的 LR-Sum 简体中文训练集正文；分类任务使用冻结的人民日报 1998 年 1 月六类弱标签样本。官方 fastText 的随机初始化和 Gensim FastText 词向量初始化均在同一套分类划分上比较。
 
-## 环境
+## 数据与实验设计
 
-- Python 3.12（本次运行环境为 Anaconda Python 3.12.7）
-- 安装依赖：`python -m pip install -r requirements.txt`
-- 官方 fastText 绑定由 `fasttext-wheel==0.9.2` 提供。实验使用 `fasttext.train_supervised`，不是用 Gensim 分类器替代 fastText。
-- `jieba` 不需要：数据已按词/POS 切分。解析时移除 POS 标记、方括号实体标记和 `/w` 标点。
+表示学习使用 Hugging Face `bltlab/lr-sum` 的 `cmn_s` 配置 `train` split，固定 revision 为 `deb2e73ce53e42ceda31297a991afa138ee665a8`。随项目保存的原始 Parquet 含 483 行。预处理会先读取 Parquet 整表，再选择 `id` 与 `text` 构造清洗记录；模型句子只由正文 `text` 生成，标题、摘要、URL 和数据集标签不进入训练输入。正文做 Unicode NFKC 规范化，移除控制字符、合并空白，并按先做 NFKC 与大小写折叠、再移除空白和 Unicode 标点后的正文指纹去重，最后用 `jieba==0.42.1` 分词。当前冻结语料包含 482 篇正文、359,302 个 token；1 篇与前文完全重复而排除。与 PeopleDaily 一月正文及其前 200 字符的完全/前缀重复均为 0，验证/测试正文没有进入预训练语料。原始来源、许可、revision 和 SHA-256 记录见 [data/SOURCE.md](data/SOURCE.md)。
 
-## 运行
+监督样本来自 `作业1.3_ngram编程实验/data/人民日报1998_PFR.zip` 中的 `199801/199801.txt`，使用原始词/POS 切分。`data/frozen_split.csv`、弱标签候选、筛选审计和规则在更换表示学习语料前冻结；其 SHA-256 保存在 `data/frozen_input_sha256.json` 并由 `audit.py` 校验。标题按精确 token 命中体育、经济、文化、国际、政治、社会六类词表；允许同类多词，但跨类命中即排除。国际词表限于外国国名、联合国和外交相关词；政治词表保留核心政治机构/制度词并去除泛词。社会类覆盖广义民生，与其他主题仍可能有语义交叉，因此结果反映弱标签任务而非人工金标准。
 
-在本目录运行下面单一入口。若省略 `--source`，从随项目保存的冻结清洗数据、分类样本和未标注词语料复跑模型；首次构建或重建数据时传入本机原始 ZIP：
+每类固定 50 篇，按 SHA-256 确定选样及分层拆分为 30/10/10。2 类和 4 类任务直接取六类样本的嵌套子集。分类只输入正文前 500 个已有分词，不输入标题。验证集用于官方 fastText 25、100、250 epoch 候选轮数选择，按 Macro-F1 最大值选择，平局取较小轮数；测试集仅评估选中的轮数。
+
+## 模型
+
+Gensim Word2Vec 和 Gensim FastText 均为 Skip-gram、100 维、窗口 5、`min_count=3`、10 轮、单 worker、随机种子 42。FastText 字符 n-gram 范围为 2–4、bucket 100,000。监督分类包含 unigram TF-IDF + Logistic Regression、冻结 Word2Vec 均值 + 标准化 + Logistic Regression、冻结 Gensim FastText 均值 + 标准化 + Logistic Regression，以及官方 `fasttext.train_supervised` 的随机初始化和预训练初始化两种方式。官方 fastText 使用 softmax、100 维、学习率 0.5、`wordNgrams=2`、`minn=maxn=0`、单线程、bucket 100,000。预训练 `.vec` 只导出 `分类监督训练集去重词表 ∩ Gensim FastText 的 key_to_index`，不导出训练词表 OOV；官方监督分类器关闭字符子词合成，未覆盖词按其默认行为处理。
+
+两个语料的分词体系不同：PeopleDaily 保留其源文件的词/POS 切分并去掉标点、POS 标记；LR-Sum 则由 jieba 分词。结果文件会报告六类监督训练正文与 Gensim 词表之间的类型和词频加权覆盖率。低覆盖会减少均值向量特征中可用的词，因此跨语料对比须结合覆盖率和语料领域、年代差异解释。
+
+近邻与 OOV 查询只检查向量是否可读及 Gensim FastText 能否由字符 n-gram 合成向量，不作为效果指标。性能结论应以留出的测试集结果为准；每类测试样本仅 10 篇，适合作为小规模编程实验比较。
+
+## 环境与运行
+
+建议使用 Python 3.12。依赖版本列在 `requirements.txt`。项目根目录中的冻结 Parquet、PeopleDaily 分类样本和生成的清洗语料均可直接用于复跑：
 
 ```powershell
+python -m pip install -r requirements.txt
 python run_experiment.py
-python run_experiment.py --source "..\作业1.3_ngram编程实验\data\人民日报1998_PFR.zip"
 ```
 
-第二条命令会按固定摘要核验 ZIP，重建 `data/` 中的冻结清洗数据、弱标签候选和拆分，然后训练模型并运行独立审计。脚本会将自身重新启动到 `PYTHONHASHSEED=0`，因此从命令行即可复现哈希排序。也可单独重跑数据审计：
+脚本会重建 LR-Sum 的规范化、去重和 jieba 分词结果。只有检查点文件缺失，或来源 revision/摘要与当前语料不匹配时，才会重新训练两种 Gensim 表示；命中检查点后，若模型无法载入或缓存分支中的参数断言失败，程序会报错退出，不会自动回退重训。缓存分支检查 SG、维度、窗口、`min_count`、轮数、worker 和 seed；FastText 字符 n-gram 参数由运行末尾的独立审计检查，审计失败同样会报错。每次都重跑全部 15 个监督模型组合并输出诊断、指标、逐篇预测、错误表和图表，随后调用独立审计。若需强制重训表示模型，可删除 `models/word2vec_sg.model`、`models/gensim_fasttext_sg.model` 与 `results/embedding_training.json` 后运行同一命令。`fasttext-wheel==0.9.2` 提供官方 fastText Python 绑定；pip 会按当前平台选择兼容的发行包，不需要把 Gensim 分类器冒称为官方 fastText。单独重算并核查冻结样本、外部语料、epoch 选择、逐篇指标和混淆矩阵：
 
 ```powershell
 python audit.py
 ```
 
-## 冻结规则
+## 主要文件
 
-标题取文章 `001` 段，正文取其余段；正文至少 80 个去标点词。标签根据 `data/selection_rules.json` 的精确标题 token 词表产生：允许同一类别命中多个词，但标题只要命中多个类别就剔除。类别顺序固定为体育、经济、文化、国际、政治、社会。国际词表只使用外国国名、联合国及外交相关词，排除“国际”“亚洲”“欧洲”等泛词；政治词表排除“国家”“会议”“领导”“总统”“中央”“政策”等泛词。社会类别覆盖广义社会与民生议题，可能和政治、经济、文化交叉；跨类标题命中会被排除，余下弱标签仍不能当作人工金标准。
+- `data/external/lr_sum_cmn_s_train.parquet`：固定 revision 的 LR-Sum 原始训练 split。
+- `data/lr_sum_cmn_s_cleaned_train.jsonl`、`data/unsupervised_corpus.txt`、`data/unsupervised_corpus_manifest.csv`：规范化后的外部正文、jieba token 语料和逐篇纳入/排除清单。
+- `data/frozen_split.csv`：固定监督分类样本；`data/frozen_input_sha256.json` 锁定原始弱标签候选、筛选审计、规则和划分。
+- `models/`：Word2Vec、Gensim FastText、监督训练词表 `.vec` 和六类预训练官方 fastText 模型。
+- `results/metrics.csv`、`predictions.csv`、`fasttext_validation_curve.csv`、六类错误表及 `audit_report.json`：结果和可复算证据。
+- `results/classification_comparison.png`、`data_split_counts.png`、`confusion_6class_pretrained.png`：分类性能、语料/拆分规模和六类预训练混淆矩阵；额外的轮数验证曲线保存在 `fasttext_validation_curves.png`。
 
-原文含一个文章段号重复（第 20,964–20,965 行），两条不同正文都按源顺序保留。
-
-六类规则下的可用候选数为体育 50、经济 192、文化 70、国际 124、政治 71、社会 113。每类按 `SHA256("20261009:select:" + article_id)` 选 50 篇，再按独立哈希排序拆成训练 30、验证 10、测试 10。2 类和 4 类任务直接使用该六类样本的嵌套子集。测试集不用于选择 epoch。
-
-词向量只在未标注语料训练：六类验证/测试文章、正文完全相同的文章和与验证/测试文章前 200 个字符相同的文章均排除。官方 fastText 使用 `softmax`、100 维、学习率 0.5、wordNgrams=2、minn=maxn=0、thread=1、bucket=100000；在验证集上比较 25/100/250 epoch，Macro-F1 平局选较小 epoch。
-
-Gensim FastText 的 OOV 查询可由训练得到的字符 n-gram 合成向量；为了避免把验证/测试词带入官方监督模型的初始化文件，`.vec` 只导出监督训练样本词表中也在 Gensim 词表内的词。官方 fastText 按要求设置 `minn=maxn=0`，因此该分类器对未初始化的词不执行字符子词合成。
-
-## 主要产物
-
-- `data/cleaned_january_articles.jsonl`：一月全部清洗后的文章及标题/正文 token。
-- `data/frozen_split.csv`：固定的 300 篇监督样本及拆分。
-- `data/unsupervised_corpus.txt` 与 `data/unsupervised_corpus_manifest.csv`：词向量训练语料和逐篇纳入/排除原因。
-- `models/`：Gensim 模型、监督训练词表的 FastText `.vec`，以及六类预训练 fastText 模型（若模型文件低于 100 MiB）。
-- `results/metrics.csv`、`predictions.csv`、`fasttext_validation_curve.csv`、六类错误清单和四张诊断图。
-- `results/audit_report.json`：样本拆分、隔离、预测指标和混淆计数的独立核对结果。
-
-近邻和 OOV 子词向量只用于检查模型输出是否可查询，不作为模型质量指标。正式性能结论应以留出的测试集指标为准；该测试集每类 10 篇，结果仅适合作为小规模编程实验比较。
-
-## 实验报告
-
-完整方法、参数、统计图表和结果分析见 [实验报告.md](实验报告.md)。
+完整方法和实际结果见 [实验报告.md](实验报告.md)。
