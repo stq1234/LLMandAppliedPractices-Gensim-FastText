@@ -1,30 +1,29 @@
-# 数据来源、许可与固定摘要
+# 数据来源与摘要
 
-## 独立表示学习语料：LR-Sum 简体中文训练集
+## 表示学习语料：LR-Sum 简体中文训练集
 
 - 数据集卡：<https://huggingface.co/datasets/bltlab/lr-sum>
-- 配置与分片目录：<https://huggingface.co/datasets/bltlab/lr-sum/tree/main/cmn_s>
-- 固定 revision：`deb2e73ce53e42ceda31297a991afa138ee665a8`
-- 文件：`cmn_s/train-00000-of-00001.parquet`
-- 固定文件 URL：<https://huggingface.co/datasets/bltlab/lr-sum/resolve/deb2e73ce53e42ceda31297a991afa138ee665a8/cmn_s/train-00000-of-00001.parquet>
-- 本地归档：`data/external/lr_sum_cmn_s_train.parquet`，1,528,153 字节，SHA-256：`687db5968b23e492bfb904dc438e6ecff95f711ab93c8ef3d4d36e086d5e8630`
-- 许可：数据集卡标注 **CC BY 4.0**。再分发和改编时应按 CC BY 4.0 提供适当署名、许可链接并说明修改；此处归属数据集 `LR-Sum` / BLT Lab，链接回数据集卡。
-- 许可文本：<https://creativecommons.org/licenses/by/4.0/>
-- 论文：Chester Palen-Michel and Constantine Lignos. 2023. “LR-Sum: Summarization for Less-Resourced Languages.” *Findings of the Association for Computational Linguistics: ACL 2023*, pp. 6829–6844. <https://aclanthology.org/2023.findings-acl.427/>. DOI: <https://doi.org/10.18653/v1/2023.findings-acl.427>.
+- 配置：`cmn_s`；split：`train`；固定 revision：`deb2e73ce53e42ceda31297a991afa138ee665a8`
+- 固定文件：<https://huggingface.co/datasets/bltlab/lr-sum/resolve/deb2e73ce53e42ceda31297a991afa138ee665a8/cmn_s/train-00000-of-00001.parquet>
+- 本地文件：`data/external/lr_sum_cmn_s_train.parquet`，1,528,153 字节，SHA-256 `687db5968b23e492bfb904dc438e6ecff95f711ab93c8ef3d4d36e086d5e8630`
+- 许可：数据集卡标注 CC BY 4.0。数据归属 LR-Sum / BLT Lab；再分发及改编应按 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) 署名、附许可链接并说明修改。
+- 论文：Chester Palen-Michel and Constantine Lignos. 2023. “LR-Sum: Summarization for Less-Resourced Languages.” *Findings of ACL 2023*, pp. 6829–6844. <https://aclanthology.org/2023.findings-acl.427/>. DOI: <https://doi.org/10.18653/v1/2023.findings-acl.427>.
 
-原始 Parquet 有 `id`、`url`、`title`、`summary`、`text` 五列。表示学习代码只把 `id` 用于来源追踪，并以正文 `text` 作为模型输入；标题、摘要、URL 和来源标签不进入预训练输入。项目不使用验证或测试 split。正文经过 Unicode NFKC 规范化、移除控制字符、空白规整、完全重复正文去重和 `jieba==0.42.1` 分词，标点单独 token 被去掉。规范化指纹对大小写、空白与 Unicode 标点不敏感。本项目对原始正文做了规范化、去重和 jieba 分词，属于对数据的处理/修改。固定 train Parquet 有 483 篇记录，其中 1 篇与此前正文完全重复，最终保留 482 篇、359,302 个 token。独立审计重建了清洗结果；与 PeopleDaily 一月语料的正文及前 200 字符精确/前缀重复均为 0，验证/测试正文完全或前缀重复也均为 0。此处只核验规范化后的精确或前 200 字符相同，不代表排除了语义近重复。详细纳入/排除清单在 `unsupervised_corpus_manifest.csv`，清洗正文在 `lr_sum_cmn_s_cleaned_train.jsonl`。
+原始 Parquet 含 `id`、`url`、`title`、`summary`、`text` 列。词向量只读取 `id`（来源追踪）和正文 `text`；不使用标题、摘要、URL、标签或验证/测试 split。正文经 Unicode NFKC 规范化、控制字符移除、空白规整、规范化指纹去重及 `jieba==0.42.1` 分词，纯标点 token 被移除。483 行中 1 篇与此前正文重复，实际语料为 482 篇、359,302 个 token。上述操作构成对原数据的规范化、去重和分词处理。
 
-## 监督分类语料：人民日报 1998 年 1 月
+## 分类语料：1998 年 1—6 月教师新闻文本
 
-使用本地人民日报 1998 分词标注文件，本项目未重复保存原始压缩包。公开语料说明：<https://github.com/chenhui-bupt/PeopleDaily1998>。此前冻结规则时使用本机文件 `作业1.3_ngram编程实验/data/人民日报1998_PFR.zip`，只读 ZIP 成员 `199801/199801.txt`，采用 UTF-8-SIG 和源文件中的词/POS 切分。原始 ZIP 大小为 20,305,578 字节、SHA-256 为 `17474bbf2b360921f2eae0089fd83e22601e5a0649943c3f59403650997b4ed2`；一月成员大小为 10,666,468 字节、SHA-256 为 `41760f40739b0f301ab29e99ab14565e7cd4b06128eb3a6ac18bce277a6075a8`。一月共 3,148 个文章 ID、19,484 条非空记录，日期为 1998-01-01 至 1998-01-31。
+分类语料来自用户提供的 `1998-上半年-带音(1).rar`，原文件大小 12,093,296 字节、SHA-256：`30c4435bcce7d082c2175720a4549114f80656761df95d3c8b20f0ee48e5d7ab`。仓库不依赖原 RAR；实际输入归档为 `data/source/teacher_1998_h1_gb18030.tar.xz`，10,208,876 字节、SHA-256：`63ac4a05079b391662bde04240cf8995fa80075406ff10a748d7c8aeb146eb5c`。该归档保存从原压缩包提取的六份原始文本，便于在不安装 RAR 解压器的环境复现。来源摘要及成员清单也记录在 `teacher_source_lock.json`。
 
-分类监督数据只保留现有冻结文件：`cleaned_january_articles.jsonl`、`weak_label_candidates.csv`、`label_filter_audit.csv`、`selection_rules.json` 和 `frozen_split.csv`。规则及 300 篇样本不因更换表示学习语料而重新生成。执行语料切换前记录的 SHA-256 如下；`frozen_input_sha256.json` 是供脚本与审计读取的机器版本：
+| 月份 | 成员 | 字节 | SHA-256 |
+|---|---|---:|---|
+| 1998-01 | `1998-01-2003版-带音.txt` | 5,320,005 | `37b85555df2f72642ff9815ac01f51d4f50024d80ca0e2e8a6be6f93b1038639` |
+| 1998-02 | `1998-02-2003版-带音.txt` | 5,441,098 | `a050351664f459aed2247bc45cd46c25da2ce893e11c44a9dea06a54529f19d8` |
+| 1998-03 | `1998-03-2003版-带音.txt` | 5,951,910 | `2f9d8ecfd92eec1b8a7009bd146da5faad218a34ae17fe460944bd772b2e97db` |
+| 1998-04 | `1998-04-2003版-带音.txt` | 6,107,764 | `43462d53f2f7603168745af3200a9e6fe883ddcdf18618280358499e0ffc3fca` |
+| 1998-05 | `1998-05-2003版-带音.txt` | 5,920,187 | `04ae37614a55c2418bcb5c7697c4980afa75a74734e930f06bee6e83022d0aea` |
+| 1998-06 | `1998-06-2003版-带音.txt` | 5,946,378 | `f18f8f3d6e886644baf8306e1f08a31e3a8d390709782f913ae1ea12f3e97c5f` |
 
-| 文件 | SHA-256 |
-|---|---|
-| `frozen_split.csv` | `2345c1b8a8cc1818243bf8378311fcf6e46bfe532866753e565baa74a759c16b` |
-| `weak_label_candidates.csv` | `d84d452efabace0d59e632b640869bd9507162112b235848a642f313487592cc` |
-| `label_filter_audit.csv` | `e50e301fd02d489571addff353b5dd5b487332353979f1358ff80ff38748c72f` |
-| `selection_rules.json` | `1960a825f6ee0fdda2ba5f0ed9e0fe62924e6706986636be68c56169be3ddeaf` |
+文本使用记录 ID `YYYYMMDD-page-article-segment`，按 GB18030 对每条记录严格解码；不替换无法解码字节。若任一记录解码失败，则剔除该文章并把源文件成员、行号、字节偏移和记录 ID 写入 `teacher_decode_errors.csv`。有 5 条错误记录，涉及 `19980323-09-005`、`19980430-03-005`、`19980507-04-007` 三篇，故这三篇整篇排除。同一记录 ID、正文相同的重复记录去重；若同 ID 正文冲突则剔除整篇。冲突记录 `19980127-09-001-032` 的两个版本及哈希见 `teacher_conflicting_records.csv`。正文完成规范化后，完全相同的重复文章在标签筛选和拆分前去重。
 
-`corpus_stats.json` 记录 PeopleDaily 原文清理统计；它不再是表示学习词语料来源。表示学习使用的语料由独立 LR-Sum train split 产生。原文中文章 `19980127-09-001` 的 `032/m` 记录在源文件第 20,964–20,965 行重复出现但正文不同，清洗时按源顺序保留两条。
+此教师语料由用户提供，压缩包内未附单独的公开许可或再分发声明；项目保留来源文件摘要以供核验。仓库随附归档供本课程实验复现。

@@ -1,80 +1,59 @@
 {
-  "class_counts": {
-    "体育": 50,
-    "国际": 50,
-    "政治": 50,
-    "文化": 50,
-    "社会": 50,
-    "经济": 50
-  },
+  "embedding_checkpoint_reused": true,
   "embedding_checkpoints_loaded_and_parameters_verified": true,
   "embedding_source": {
-    "config": "cmn_s",
-    "cross_corpus_eval_exact_matches": 0,
-    "cross_corpus_eval_prefix_200_matches": 0,
-    "cross_corpus_exact_matches_any_people_daily": 0,
-    "cross_corpus_prefix_200_matches_any_people_daily": 0,
+    "cross_corpus_exact_matches_any_teacher": 0,
+    "cross_corpus_exact_matches_validation_test": 0,
+    "cross_corpus_prefix_200_matches_any_teacher": 0,
+    "cross_corpus_prefix_200_matches_validation_test": 0,
     "dataset": "bltlab/lr-sum",
-    "excluded_reason_counts": {
-      "duplicate_exact_external": 1
-    },
+    "evaluation_text_absent_from_external_embeddings": true,
     "included_articles": 482,
     "included_tokens": 359302,
     "revision": "deb2e73ce53e42ceda31297a991afa138ee665a8",
     "source_rows": 483,
-    "source_sha256": "687db5968b23e492bfb904dc438e6ecff95f711ab93c8ef3d4d36e086d5e8630",
-    "split": "train",
-    "title_summary_labels_used": false
+    "source_sha256": "687db5968b23e492bfb904dc438e6ecff95f711ab93c8ef3d4d36e086d5e8630"
   },
-  "evaluation_text_absent_from_external_embeddings": true,
-  "fasttext_known_train_vocabulary_types": 3975,
-  "frozen_classification_inputs_unchanged": true,
+  "epoch_selection_uses_validation_only": true,
+  "fasttext_known_train_vocabulary_types": 5950,
   "metric_groups_recomputed": 45,
   "nested_task_split_counts": {
     "2class": {
       "test": {
-        "体育": 10,
-        "经济": 10
-      },
-      "train": {
         "体育": 30,
         "经济": 30
       },
+      "train": {
+        "体育": 140,
+        "经济": 140
+      },
       "val": {
-        "体育": 10,
-        "经济": 10
+        "体育": 30,
+        "经济": 30
       }
     },
     "4class": {
       "test": {
-        "体育": 10,
-        "国际": 10,
-        "文化": 10,
-        "经济": 10
-      },
-      "train": {
         "体育": 30,
         "国际": 30,
         "文化": 30,
         "经济": 30
       },
+      "train": {
+        "体育": 140,
+        "国际": 140,
+        "文化": 140,
+        "经济": 140
+      },
       "val": {
-        "体育": 10,
-        "国际": 10,
-        "文化": 10,
-        "经济": 10
+        "体育": 30,
+        "国际": 30,
+        "文化": 30,
+        "经济": 30
       }
     },
     "6class": {
       "test": {
-        "体育": 10,
-        "国际": 10,
-        "政治": 10,
-        "文化": 10,
-        "社会": 10,
-        "经济": 10
-      },
-      "train": {
         "体育": 30,
         "国际": 30,
         "政治": 30,
@@ -82,57 +61,80 @@
         "社会": 30,
         "经济": 30
       },
+      "train": {
+        "体育": 140,
+        "国际": 140,
+        "政治": 140,
+        "文化": 140,
+        "社会": 140,
+        "经济": 140
+      },
       "val": {
-        "体育": 10,
-        "国际": 10,
-        "政治": 10,
-        "文化": 10,
-        "社会": 10,
-        "经济": 10
+        "体育": 30,
+        "国际": 30,
+        "政治": 30,
+        "文化": 30,
+        "社会": 30,
+        "经济": 30
       }
     }
   },
-  "prediction_rows": 3000,
-  "pretrained_vec_rows": 3975,
-  "pretrained_vec_zero_vectors": 0,
-  "selected_articles": 300,
-  "six_class_test_confusion_total": 60,
-  "six_class_test_errors": 17,
-  "split_counts_by_label": {
-    "体育": {
-      "test": 10,
-      "train": 30,
-      "val": 10
-    },
-    "国际": {
-      "test": 10,
-      "train": 30,
-      "val": 10
-    },
-    "政治": {
-      "test": 10,
-      "train": 30,
-      "val": 10
-    },
-    "文化": {
-      "test": 10,
-      "train": 30,
-      "val": 10
-    },
-    "社会": {
-      "test": 10,
-      "train": 30,
-      "val": 10
-    },
-    "经济": {
-      "test": 10,
-      "train": 30,
-      "val": 10
-    }
-  },
+  "prediction_rows": 12000,
+  "pretrained_vec_rows": 5950,
+  "six_class_test_confusion_total": 180,
+  "six_class_test_errors": 43,
   "status": "PASS",
-  "train_vocabulary_types": 9313,
-  "unsupervised_excluded_reason_counts": {
-    "duplicate_exact_external": 1
+  "teacher_corpus": {
+    "article_id_groups": 18631,
+    "candidate_counts_by_label": {
+      "体育": 277,
+      "国际": 729,
+      "政治": 556,
+      "文化": 371,
+      "社会": 797,
+      "经济": 1132
+    },
+    "canonical_articles_after_integrity_and_dedup": 16722,
+    "canonical_duplicate_bodies_dropped": 40,
+    "same_id_conflicts": [
+      "19980127-09-001-032"
+    ],
+    "same_id_duplicate_rows_dropped": 6,
+    "selected_articles": 1200,
+    "selected_per_class": 200,
+    "source_archive_sha256": "63ac4a05079b391662bde04240cf8995fa80075406ff10a748d7c8aeb146eb5c",
+    "split_per_class": {
+      "test": 30,
+      "train": 140,
+      "val": 30
+    },
+    "strict_gb18030_error_articles": [
+      "19980323-09-005",
+      "19980430-03-005",
+      "19980507-04-007"
+    ],
+    "strict_gb18030_error_rows": 5,
+    "train_validation_test_content_hashes_disjoint": true
+  },
+  "train_vocabulary_types": 23617,
+  "weak_label_cue_overlap": {
+    "test": {
+      "articles": 180,
+      "articles_with_any_title_label_keyword_in_classifier_body": 173,
+      "fraction": 0.9611111111111111,
+      "percent": 96.11111111111111
+    },
+    "train": {
+      "articles": 840,
+      "articles_with_any_title_label_keyword_in_classifier_body": 798,
+      "fraction": 0.95,
+      "percent": 95.0
+    },
+    "val": {
+      "articles": 180,
+      "articles_with_any_title_label_keyword_in_classifier_body": 172,
+      "fraction": 0.9555555555555556,
+      "percent": 95.55555555555556
+    }
   }
 }

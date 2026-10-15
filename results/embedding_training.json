@@ -25,31 +25,31 @@
     "vocabulary_size": 11171
   },
   "pretrained_vectors": {
-    "bytes": 4595678,
-    "exported_known_tokens": 3975,
+    "bytes": 6880413,
+    "exported_known_tokens": 5950,
     "oov_exported": 0,
     "path": "models\\gensim_fasttext_train_vocab.vec",
-    "train_vocabulary_tokens": 9313
+    "train_vocabulary_tokens": 23617
   },
   "thread_environment": "not_recorded_for_embedding_checkpoint",
   "train_vocabulary_coverage": [
     {
-      "known_token_occurrences": 41039,
-      "known_types": 3975,
+      "known_token_occurrences": 197143,
+      "known_types": 5950,
       "model": "word2vec",
-      "token_coverage": 0.7862178627533623,
-      "train_token_occurrences": 52198,
-      "train_vocabulary_types": 9313,
-      "type_coverage": 0.42682272092773543
+      "token_coverage": 0.7854208913837684,
+      "train_token_occurrences": 251003,
+      "train_vocabulary_types": 23617,
+      "type_coverage": 0.2519371639073549
     },
     {
-      "known_token_occurrences": 41039,
-      "known_types": 3975,
+      "known_token_occurrences": 197143,
+      "known_types": 5950,
       "model": "gensim_fasttext",
-      "token_coverage": 0.7862178627533623,
-      "train_token_occurrences": 52198,
-      "train_vocabulary_types": 9313,
-      "type_coverage": 0.42682272092773543
+      "token_coverage": 0.7854208913837684,
+      "train_token_occurrences": 251003,
+      "train_vocabulary_types": 23617,
+      "type_coverage": 0.2519371639073549
     }
   ],
   "unsupervised_corpus_sha256": "a8a12bc51f4b3826d0f10fcfe0e134bc720aca4d7d065be47a5b19fda8cf21da",

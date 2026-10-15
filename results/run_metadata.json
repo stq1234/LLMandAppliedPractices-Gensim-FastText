@@ -1,81 +1,60 @@
 {
   "audit": {
-    "class_counts": {
-      "体育": 50,
-      "国际": 50,
-      "政治": 50,
-      "文化": 50,
-      "社会": 50,
-      "经济": 50
-    },
+    "embedding_checkpoint_reused": true,
     "embedding_checkpoints_loaded_and_parameters_verified": true,
     "embedding_source": {
-      "config": "cmn_s",
-      "cross_corpus_eval_exact_matches": 0,
-      "cross_corpus_eval_prefix_200_matches": 0,
-      "cross_corpus_exact_matches_any_people_daily": 0,
-      "cross_corpus_prefix_200_matches_any_people_daily": 0,
+      "cross_corpus_exact_matches_any_teacher": 0,
+      "cross_corpus_exact_matches_validation_test": 0,
+      "cross_corpus_prefix_200_matches_any_teacher": 0,
+      "cross_corpus_prefix_200_matches_validation_test": 0,
       "dataset": "bltlab/lr-sum",
-      "excluded_reason_counts": {
-        "duplicate_exact_external": 1
-      },
+      "evaluation_text_absent_from_external_embeddings": true,
       "included_articles": 482,
       "included_tokens": 359302,
       "revision": "deb2e73ce53e42ceda31297a991afa138ee665a8",
       "source_rows": 483,
-      "source_sha256": "687db5968b23e492bfb904dc438e6ecff95f711ab93c8ef3d4d36e086d5e8630",
-      "split": "train",
-      "title_summary_labels_used": false
+      "source_sha256": "687db5968b23e492bfb904dc438e6ecff95f711ab93c8ef3d4d36e086d5e8630"
     },
-    "evaluation_text_absent_from_external_embeddings": true,
-    "fasttext_known_train_vocabulary_types": 3975,
-    "frozen_classification_inputs_unchanged": true,
+    "epoch_selection_uses_validation_only": true,
+    "fasttext_known_train_vocabulary_types": 5950,
     "metric_groups_recomputed": 45,
     "nested_task_split_counts": {
       "2class": {
         "test": {
-          "体育": 10,
-          "经济": 10
-        },
-        "train": {
           "体育": 30,
           "经济": 30
         },
+        "train": {
+          "体育": 140,
+          "经济": 140
+        },
         "val": {
-          "体育": 10,
-          "经济": 10
+          "体育": 30,
+          "经济": 30
         }
       },
       "4class": {
         "test": {
-          "体育": 10,
-          "国际": 10,
-          "文化": 10,
-          "经济": 10
-        },
-        "train": {
           "体育": 30,
           "国际": 30,
           "文化": 30,
           "经济": 30
         },
+        "train": {
+          "体育": 140,
+          "国际": 140,
+          "文化": 140,
+          "经济": 140
+        },
         "val": {
-          "体育": 10,
-          "国际": 10,
-          "文化": 10,
-          "经济": 10
+          "体育": 30,
+          "国际": 30,
+          "文化": 30,
+          "经济": 30
         }
       },
       "6class": {
         "test": {
-          "体育": 10,
-          "国际": 10,
-          "政治": 10,
-          "文化": 10,
-          "社会": 10,
-          "经济": 10
-        },
-        "train": {
           "体育": 30,
           "国际": 30,
           "政治": 30,
@@ -83,210 +62,189 @@
           "社会": 30,
           "经济": 30
         },
+        "train": {
+          "体育": 140,
+          "国际": 140,
+          "政治": 140,
+          "文化": 140,
+          "社会": 140,
+          "经济": 140
+        },
         "val": {
-          "体育": 10,
-          "国际": 10,
-          "政治": 10,
-          "文化": 10,
-          "社会": 10,
-          "经济": 10
+          "体育": 30,
+          "国际": 30,
+          "政治": 30,
+          "文化": 30,
+          "社会": 30,
+          "经济": 30
         }
       }
     },
-    "prediction_rows": 3000,
-    "pretrained_vec_rows": 3975,
-    "pretrained_vec_zero_vectors": 0,
-    "selected_articles": 300,
-    "six_class_test_confusion_total": 60,
-    "six_class_test_errors": 17,
-    "split_counts_by_label": {
-      "体育": {
-        "test": 10,
-        "train": 30,
-        "val": 10
-      },
-      "国际": {
-        "test": 10,
-        "train": 30,
-        "val": 10
-      },
-      "政治": {
-        "test": 10,
-        "train": 30,
-        "val": 10
-      },
-      "文化": {
-        "test": 10,
-        "train": 30,
-        "val": 10
-      },
-      "社会": {
-        "test": 10,
-        "train": 30,
-        "val": 10
-      },
-      "经济": {
-        "test": 10,
-        "train": 30,
-        "val": 10
-      }
-    },
+    "prediction_rows": 12000,
+    "pretrained_vec_rows": 5950,
+    "six_class_test_confusion_total": 180,
+    "six_class_test_errors": 43,
     "status": "PASS",
-    "train_vocabulary_types": 9313,
-    "unsupervised_excluded_reason_counts": {
-      "duplicate_exact_external": 1
+    "teacher_corpus": {
+      "article_id_groups": 18631,
+      "candidate_counts_by_label": {
+        "体育": 277,
+        "国际": 729,
+        "政治": 556,
+        "文化": 371,
+        "社会": 797,
+        "经济": 1132
+      },
+      "canonical_articles_after_integrity_and_dedup": 16722,
+      "canonical_duplicate_bodies_dropped": 40,
+      "same_id_conflicts": [
+        "19980127-09-001-032"
+      ],
+      "same_id_duplicate_rows_dropped": 6,
+      "selected_articles": 1200,
+      "selected_per_class": 200,
+      "source_archive_sha256": "63ac4a05079b391662bde04240cf8995fa80075406ff10a748d7c8aeb146eb5c",
+      "split_per_class": {
+        "test": 30,
+        "train": 140,
+        "val": 30
+      },
+      "strict_gb18030_error_articles": [
+        "19980323-09-005",
+        "19980430-03-005",
+        "19980507-04-007"
+      ],
+      "strict_gb18030_error_rows": 5,
+      "train_validation_test_content_hashes_disjoint": true
+    },
+    "train_vocabulary_types": 23617,
+    "weak_label_cue_overlap": {
+      "test": {
+        "articles": 180,
+        "articles_with_any_title_label_keyword_in_classifier_body": 173,
+        "fraction": 0.9611111111111111,
+        "percent": 96.11111111111111
+      },
+      "train": {
+        "articles": 840,
+        "articles_with_any_title_label_keyword_in_classifier_body": 798,
+        "fraction": 0.95,
+        "percent": 95.0
+      },
+      "val": {
+        "articles": 180,
+        "articles_with_any_title_label_keyword_in_classifier_body": 172,
+        "fraction": 0.9555555555555556,
+        "percent": 95.55555555555556
+      }
     }
   },
   "classification_corpus": {
-    "archive_bytes": 20305578,
-    "archive_sha256": "17474bbf2b360921f2eae0089fd83e22601e5a0649943c3f59403650997b4ed2",
-    "articles": 3148,
-    "articles_body_ge_80": 2361,
-    "articles_missing_title_segment": 1,
-    "blank_lines": 3080,
-    "chunk_markers_encountered": 9183,
-    "clean_nonpunct_tokens": 947665,
-    "data_role": "PeopleDaily parsing and frozen weak-label classification selection only; not used for embedding pretraining",
-    "date_end": "19980131",
-    "date_start": "19980101",
-    "duplicate_segment_examples": [
-      {
-        "article_id": "19980127-09-001",
-        "segment_id": 32,
-        "source_line_numbers": [
-          20964,
-          20965
-        ]
+    "archive_bytes": 10208876,
+    "archive_sha256": "63ac4a05079b391662bde04240cf8995fa80075406ff10a748d7c8aeb146eb5c",
+    "article_id_groups": 18631,
+    "blank_lines": 20005,
+    "body_min_tokens": 80,
+    "candidate_counts_by_label": {
+      "体育": 277,
+      "国际": 729,
+      "政治": 556,
+      "文化": 371,
+      "社会": 797,
+      "经济": 1132
+    },
+    "canonical_articles_after_integrity_and_dedup": 16722,
+    "canonical_duplicate_body_articles_dropped": 40,
+    "conflicting_articles_dropped": 1,
+    "cross_category_title_hits": 478,
+    "empty_body_articles_dropped": 1864,
+    "malformed_nonempty_lines": 0,
+    "max_classifier_input_tokens": 500,
+    "members": {
+      "1998-01-2003版-带音.txt": {
+        "bytes": 5320005,
+        "sha256": "37b85555df2f72642ff9815ac01f51d4f50024d80ca0e2e8a6be6f93b1038639"
+      },
+      "1998-02-2003版-带音.txt": {
+        "bytes": 5441098,
+        "sha256": "a050351664f459aed2247bc45cd46c25da2ce893e11c44a9dea06a54529f19d8"
+      },
+      "1998-03-2003版-带音.txt": {
+        "bytes": 5951910,
+        "sha256": "2f9d8ecfd92eec1b8a7009bd146da5faad218a34ae17fe460944bd772b2e97db"
+      },
+      "1998-04-2003版-带音.txt": {
+        "bytes": 6107764,
+        "sha256": "43462d53f2f7603168745af3200a9e6fe883ddcdf18618280358499e0ffc3fca"
+      },
+      "1998-05-2003版-带音.txt": {
+        "bytes": 5920187,
+        "sha256": "04ae37614a55c2418bcb5c7697c4980afa75a74734e930f06bee6e83022d0aea"
+      },
+      "1998-06-2003版-带音.txt": {
+        "bytes": 5946378,
+        "sha256": "f18f8f3d6e886644baf8306e1f08a31e3a8d390709782f913ae1ea12f3e97c5f"
       }
+    },
+    "minimum_candidate_count": 277,
+    "missing_title_articles_dropped": 1,
+    "no_keyword_title_hits": 9917,
+    "physical_lines": 143766,
+    "pinyin_annotations_removed": 95058,
+    "same_id_conflicting_segment_ids": [
+      "19980127-09-001-032"
     ],
-    "duplicate_segment_keys": 1,
-    "duplicate_segment_records_extra": 1,
-    "encoding": "utf-8-sig",
-    "physical_lines": 22564,
-    "pos_tags": {
-      "Ag": 315,
-      "Bg": 6,
-      "Dg": 125,
-      "Mg": 6,
-      "Ng": 4489,
-      "Rg": 10,
-      "Tg": 480,
-      "Vg": 1843,
-      "Yg": 1,
-      "a": 34578,
-      "ad": 5893,
-      "an": 2827,
-      "b": 8734,
-      "c": 25438,
-      "d": 47426,
-      "e": 25,
-      "f": 17279,
-      "h": 48,
-      "i": 4774,
-      "j": 10282,
-      "k": 904,
-      "l": 6195,
-      "m": 41324,
-      "n": 237176,
-      "nr": 35259,
-      "ns": 27607,
-      "nt": 3554,
-      "nx": 415,
-      "nz": 3745,
-      "o": 72,
-      "p": 39907,
-      "q": 24230,
-      "r": 32336,
-      "s": 3851,
-      "t": 20675,
-      "u": 74751,
-      "v": 184778,
-      "vd": 494,
-      "vn": 42575,
-      "w": 173056,
-      "y": 1900,
-      "z": 1338
+    "same_id_same_body_duplicate_rows_dropped": 6,
+    "selected_articles": 1200,
+    "selected_per_class": 200,
+    "selection_note": "Each class has at least 200 eligible articles; choose 200 per class by salted SHA-256 order.",
+    "short_body_articles": 2465,
+    "source_archive": "data/source/teacher_1998_h1_gb18030.tar.xz",
+    "source_dataset": "User-provided 1998 first-half teacher corpus with pronunciation annotations",
+    "source_encoding": "GB18030 strict",
+    "source_id_fields": "YYYYMMDD-page-article-segment",
+    "source_member_line_counts": {
+      "1998-01-2003版-带音.txt": 23258,
+      "1998-02-2003版-带音.txt": 21603,
+      "1998-03-2003版-带音.txt": 24685,
+      "1998-04-2003版-带音.txt": 25145,
+      "1998-05-2003版-带音.txt": 24880,
+      "1998-06-2003版-带音.txt": 24195
     },
-    "punctuation_tokens_dropped": 173056,
-    "records": 19484,
-    "selected_articles": 300,
-    "selected_counts": {
-      "体育": 50,
-      "国际": 50,
-      "政治": 50,
-      "文化": 50,
-      "社会": 50,
-      "经济": 50
+    "source_rar_bytes": 12093296,
+    "source_rar_name": "1998-上半年-带音(1).rar",
+    "source_rar_sha256": "30c4435bcce7d082c2175720a4549114f80656761df95d3c8b20f0ee48e5d7ab",
+    "split_per_class": {
+      "test": 30,
+      "train": 140,
+      "val": 30
     },
-    "single_category_candidates_under_six_class_rules": {
-      "体育": 50,
-      "国际": 124,
-      "政治": 71,
-      "文化": 70,
-      "社会": 113,
-      "经济": 192
-    },
-    "source_member": "199801/199801.txt",
-    "source_member_bytes": 10666468,
-    "source_member_sha256": "41760f40739b0f301ab29e99ab14565e7cd4b06128eb3a6ac18bce277a6075a8",
-    "source_name": "人民日报1998_PFR.zip",
-    "split_counts_by_label": {
-      "体育": {
-        "test": 10,
-        "train": 30,
-        "val": 10
-      },
-      "国际": {
-        "test": 10,
-        "train": 30,
-        "val": 10
-      },
-      "政治": {
-        "test": 10,
-        "train": 30,
-        "val": 10
-      },
-      "文化": {
-        "test": 10,
-        "train": 30,
-        "val": 10
-      },
-      "社会": {
-        "test": 10,
-        "train": 30,
-        "val": 10
-      },
-      "经济": {
-        "test": 10,
-        "train": 30,
-        "val": 10
-      }
-    },
-    "status_counts": {
-      "candidate": 620,
-      "cross_category_hit": 57,
-      "missing_title": 1,
-      "no_keyword_hit": 1684,
-      "short_body": 786
-    },
-    "target_per_class": 50,
-    "unique_dates": 31
+    "strict_gb18030_error_article_ids": [
+      "19980323-09-005",
+      "19980430-03-005",
+      "19980507-04-007"
+    ],
+    "strict_gb18030_error_articles_dropped": 3,
+    "strict_gb18030_error_rows": 5,
+    "title_in_classifier_input": false,
+    "title_used_for_label_only": true,
+    "unique_segment_ids": 123749
   },
   "classification_rows": {
     "2class": {
-      "test": 20,
-      "train": 60,
-      "val": 20
+      "test": 60,
+      "train": 280,
+      "val": 60
     },
     "4class": {
-      "test": 40,
-      "train": 120,
-      "val": 40
+      "test": 120,
+      "train": 560,
+      "val": 120
     },
     "6class": {
-      "test": 60,
-      "train": 180,
-      "val": 60
+      "test": 180,
+      "train": 840,
+      "val": 180
     }
   },
   "classification_thread_environment": {
@@ -296,9 +254,9 @@
   },
   "embedding_corpus": {
     "config": "cmn_s",
-    "cross_corpus_exact_matches_any_people_daily": 0,
+    "cross_corpus_exact_matches_any_teacher": 0,
     "cross_corpus_exact_matches_validation_test": 0,
-    "cross_corpus_prefix_200_matches_any_people_daily": 0,
+    "cross_corpus_prefix_200_matches_any_teacher": 0,
     "cross_corpus_prefix_200_matches_validation_test": 0,
     "dataset": "bltlab/lr-sum",
     "deduplication_fingerprint": "casefold + NFKC + remove whitespace and Unicode punctuation; exact text SHA-256",
@@ -313,7 +271,7 @@
     "license": "CC BY 4.0",
     "normalization": "Unicode NFKC, remove Cc/Cf/Cs controls, collapse whitespace, preserve punctuation for segmentation",
     "parquet_bytes": 1528153,
-    "preprocessing_seconds": 3.854866800000309,
+    "preprocessing_seconds": 41.03428480000002,
     "revision": "deb2e73ce53e42ceda31297a991afa138ee665a8",
     "source_labels_used": false,
     "source_path": "data\\external\\lr_sum_cmn_s_train.parquet",
@@ -354,31 +312,31 @@
       "vocabulary_size": 11171
     },
     "pretrained_vectors": {
-      "bytes": 4595678,
-      "exported_known_tokens": 3975,
+      "bytes": 6880413,
+      "exported_known_tokens": 5950,
       "oov_exported": 0,
       "path": "models\\gensim_fasttext_train_vocab.vec",
-      "train_vocabulary_tokens": 9313
+      "train_vocabulary_tokens": 23617
     },
     "thread_environment": "not_recorded_for_embedding_checkpoint",
     "train_vocabulary_coverage": [
       {
-        "known_token_occurrences": 41039,
-        "known_types": 3975,
+        "known_token_occurrences": 197143,
+        "known_types": 5950,
         "model": "word2vec",
-        "token_coverage": 0.7862178627533623,
-        "train_token_occurrences": 52198,
-        "train_vocabulary_types": 9313,
-        "type_coverage": 0.42682272092773543
+        "token_coverage": 0.7854208913837684,
+        "train_token_occurrences": 251003,
+        "train_vocabulary_types": 23617,
+        "type_coverage": 0.2519371639073549
       },
       {
-        "known_token_occurrences": 41039,
-        "known_types": 3975,
+        "known_token_occurrences": 197143,
+        "known_types": 5950,
         "model": "gensim_fasttext",
-        "token_coverage": 0.7862178627533623,
-        "train_token_occurrences": 52198,
-        "train_vocabulary_types": 9313,
-        "type_coverage": 0.42682272092773543
+        "token_coverage": 0.7854208913837684,
+        "train_token_occurrences": 251003,
+        "train_vocabulary_types": 23617,
+        "type_coverage": 0.2519371639073549
       }
     ],
     "unsupervised_corpus_sha256": "a8a12bc51f4b3826d0f10fcfe0e134bc720aca4d7d065be47a5b19fda8cf21da",
@@ -404,16 +362,18 @@
   },
   "files": [
     "data\\SOURCE.md",
-    "data\\cleaned_january_articles.jsonl",
     "data\\corpus_stats.json",
     "data\\external\\lr_sum_cmn_s_train.parquet",
     "data\\external_corpus_stats.json",
     "data\\external_source_lock.json",
-    "data\\frozen_input_sha256.json",
     "data\\frozen_split.csv",
     "data\\label_filter_audit.csv",
     "data\\lr_sum_cmn_s_cleaned_train.jsonl",
     "data\\selection_rules.json",
+    "data\\source\\teacher_1998_h1_gb18030.tar.xz",
+    "data\\teacher_conflicting_records.csv",
+    "data\\teacher_decode_errors.csv",
+    "data\\teacher_source_lock.json",
     "data\\unsupervised_corpus.txt",
     "data\\unsupervised_corpus_manifest.csv",
     "data\\weak_label_candidates.csv",
@@ -430,21 +390,22 @@
     "results\\embedding_training.json",
     "results\\errors_6class_pretrained_fasttext.csv",
     "results\\fasttext_validation_curve.csv",
-    "results\\fasttext_validation_curves.png",
     "results\\metrics.csv",
     "results\\predictions.csv",
     "results\\run_metadata.json",
-    "results\\train_vocabulary_coverage.csv"
+    "results\\train_vocabulary_coverage.csv",
+    "results\\weak_label_cue_overlap.json"
   ],
   "metrics_rows": 15,
-  "prediction_rows": 3000,
+  "prediction_rows": 12000,
   "python": "3.12.7 | packaged by Anaconda, Inc. | (main, Oct  4 2024, 13:17:27) [MSC v.1929 64 bit (AMD64)]",
   "python_executable": "D:\\Softs\\anaconda\\python.exe",
   "pythonhashseed": "0",
   "stage_timings_seconds": {
-    "classification_candidates": 34.561775999999554,
-    "embeddings_including_diagnostics": 0.40971709999939776,
-    "external_preprocessing": 3.854866800000309
+    "classification_candidates": 276.32683739999993,
+    "embeddings_including_diagnostics": 0.806011299999227,
+    "external_preprocessing": 41.03428480000002,
+    "teacher_source_preprocessing": 12.349547400001029
   },
   "validation_curve_rows": 18,
   "versions": {

@@ -22,6 +22,11 @@ from external_corpus import (
     build_external_corpus,
     write_source_metadata,
 )
+from teacher_corpus import ARCHIVE_RELATIVE, build_teacher_corpus
+
+# Keep every native numerical or model library within the four-thread task cap.
+for _thread_var in ("OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS", "NUMEXPR_NUM_THREADS"):
+    os.environ[_thread_var] = "1"
 
 
 # Python only reads PYTHONHASHSEED when the process starts. Re-exec once so the
@@ -511,15 +516,37 @@ def make_charts(metrics_rows: list[dict[str, Any]], predictions: list[dict[str, 
     plt.close(figure)
 
     split_rows = read_csv(DATA / "frozen_split.csv")
-    split_counts = [sum(row["split"] == split for row in split_rows) for split in ("train", "val", "test")]
-    external_stats = json.loads((DATA / "external_corpus_stats.json").read_text(encoding="utf-8"))
-    external_counts = [int(external_stats["included_articles"]), int(external_stats["source_rows"]) - int(external_stats["included_articles"])]
-    figure, axes = plt.subplots(1, 2, figsize=(12, 5.5), constrained_layout=True)
-    axes[0].pie(external_counts, labels=[f"{label} ({count})" for label, count in zip(("外部词向量训练语料", "去重/隔离后排除"), external_counts)], autopct="%1.1f%%", startangle=90, wedgeprops={"edgecolor": "white", "linewidth": 1})
-    axes[0].set_title("LR-Sum cmn_s train 正文")
-    axes[1].pie(split_counts, labels=[f"{name} ({count})" for name, count in zip(("训练", "验证", "测试"), split_counts)], autopct="%1.1f%%", startangle=90, colors=["#176B87", "#D97706", "#57A773"], wedgeprops={"edgecolor": "white", "linewidth": 1})
-    axes[1].set_title("PeopleDaily 六类监督样本（各类等量）")
-    figure.suptitle("表示学习与分类数据实际计数")
+    class_names = CATEGORY_ORDER
+    split_values = {
+        split: [sum(row["label"] == label and row["split"] == split for row in split_rows) for label in class_names]
+        for split in ("train", "val", "test")
+    }
+    corpus_stats = json.loads((DATA / "corpus_stats.json").read_text(encoding="utf-8"))
+    candidate_total = sum(corpus_stats["candidate_counts_by_label"].values())
+    flow_labels = ["文章 ID 分组", "有效且正文去重", "单类关键词候选", "固定分类样本"]
+    flow_values = [
+        corpus_stats["article_id_groups"],
+        corpus_stats["canonical_articles_after_integrity_and_dedup"],
+        candidate_total,
+        corpus_stats["selected_articles"],
+    ]
+    figure, axes = plt.subplots(1, 2, figsize=(13, 5.5), constrained_layout=True)
+    axes[0].barh(flow_labels, flow_values, color=["#667085", "#176B87", "#D97706", "#57A773"])
+    axes[0].invert_yaxis()
+    axes[0].set_xscale("log")
+    axes[0].set_xlabel("文章数（对数刻度）")
+    axes[0].set_title("教师语料筛选规模")
+    for index, value in enumerate(flow_values):
+        axes[0].text(value * 1.04, index, f"{value:,}", va="center")
+    bottom = np.zeros(len(class_names))
+    colors = {"train": "#176B87", "val": "#D97706", "test": "#57A773"}
+    for split in ("train", "val", "test"):
+        axes[1].bar(class_names, split_values[split], bottom=bottom, label={"train": "训练", "val": "验证", "test": "测试"}[split], color=colors[split])
+        bottom += np.asarray(split_values[split])
+    axes[1].set_ylabel("文章数")
+    axes[1].set_title("六类固定样本与拆分")
+    axes[1].legend(frameon=False)
+    figure.suptitle("教师新闻语料分类样本与拆分计数")
     figure.savefig(RESULTS / "data_split_counts.png", dpi=200, bbox_inches="tight")
     plt.close(figure)
 
@@ -544,22 +571,6 @@ def make_charts(metrics_rows: list[dict[str, Any]], predictions: list[dict[str, 
     figure.savefig(RESULTS / "confusion_6class_pretrained.png", dpi=200, bbox_inches="tight")
     plt.close(figure)
 
-    curve_fig, curve_axes = plt.subplots(1, 3, figsize=(15, 4.5), constrained_layout=True, sharey=True)
-    for axis, task in zip(curve_axes, tasks):
-        for initialization in ("random", "pretrained"):
-            subset = sorted((row for row in curves if row["task"] == task and row["initialization"] == initialization), key=lambda row: int(row["epoch"]))
-            axis.plot([int(row["epoch"]) for row in subset], [float(row["val_macro_f1"]) for row in subset], marker="o", linewidth=2, label=initialization)
-        axis.set_title(task)
-        axis.set_xlabel("Epoch 候选值")
-        axis.set_xticks([25, 100, 250])
-        axis.grid(alpha=0.2)
-    curve_axes[0].set_ylabel("验证集 Macro-F1")
-    curve_axes[-1].legend(frameon=False)
-    curve_fig.suptitle("官方 fastText 验证集选轮曲线")
-    curve_fig.savefig(RESULTS / "fasttext_validation_curves.png", dpi=200, bbox_inches="tight")
-    plt.close(curve_fig)
-
-
 def run_training() -> dict[str, Any]:
     import fasttext
     import gensim
@@ -571,17 +582,21 @@ def run_training() -> dict[str, Any]:
     import sklearn
     import jieba
 
-    frozen_hashes = json.loads((DATA / "frozen_input_sha256.json").read_text(encoding="utf-8"))
-    print("[stage] verify frozen PeopleDaily inputs", flush=True)
-    for filename, expected_hash in frozen_hashes.items():
-        actual_hash = sha256_bytes((DATA / filename).read_bytes())
-        if actual_hash != expected_hash:
-            raise ValueError(f"冻结 PeopleDaily 输入摘要改变：{filename}: {actual_hash} != {expected_hash}")
+    print("[stage] parse six-month GB18030 teacher source and freeze sample", flush=True)
+    teacher_started = time.perf_counter()
+    teacher_data = build_teacher_corpus(ROOT, write_outputs=True)
+    teacher_elapsed = time.perf_counter() - teacher_started
+    print(
+        f"[stage] teacher corpus ready articles={len(teacher_data['articles'])} "
+        f"candidates={len(teacher_data['candidate_articles'])} selected={len(teacher_data['selected_rows'])} "
+        f"seconds={teacher_elapsed:.2f}",
+        flush=True,
+    )
     print("[stage] normalize and tokenize pinned LR-Sum corpus", flush=True)
     external_started = time.perf_counter()
-    external_stats = build_external_corpus(ROOT)
+    external_stats = build_external_corpus(ROOT, teacher_articles=teacher_data["articles"])
     external_stats["preprocessing_seconds"] = time.perf_counter() - external_started
-    write_source_metadata(ROOT, frozen_hashes)
+    write_source_metadata(ROOT, teacher_data["source_lock"])
     print(f"[stage] LR-Sum corpus ready articles={external_stats['included_articles']} tokens={external_stats['included_tokens']} seconds={external_stats['preprocessing_seconds']:.2f}", flush=True)
 
     rows = load_samples()
@@ -639,7 +654,7 @@ def run_training() -> dict[str, Any]:
         "metrics_rows": len(metrics_rows),
         "prediction_rows": len(predictions),
         "validation_curve_rows": len(validation_curves),
-        "stage_timings_seconds": {"external_preprocessing": external_stats["preprocessing_seconds"], "embeddings_including_diagnostics": embedding_elapsed, "classification_candidates": classification_elapsed},
+        "stage_timings_seconds": {"teacher_source_preprocessing": teacher_elapsed, "external_preprocessing": external_stats["preprocessing_seconds"], "embeddings_including_diagnostics": embedding_elapsed, "classification_candidates": classification_elapsed},
         "files": [str(path.relative_to(ROOT)) for path in sorted(RESULTS.iterdir()) if path.is_file()],
     }
     write_json(RESULTS / "run_metadata.json", run_meta)
@@ -651,8 +666,8 @@ def main() -> int:
 
     parser = argparse.ArgumentParser(description=__doc__)
     parser.parse_args()
-    if not (DATA / "frozen_split.csv").is_file() or not (ROOT / RELATIVE_PARQUET).is_file():
-        raise SystemExit("需要随项目提供冻结 PeopleDaily 分类样本和 data/external 下固定 revision 的 LR-Sum cmn_s train Parquet；见 README.md 与 data/SOURCE.md。")
+    if not (ROOT / ARCHIVE_RELATIVE).is_file() or not (ROOT / RELATIVE_PARQUET).is_file():
+        raise SystemExit("需要随项目提供 data/source 下固定教师语料归档及 data/external 下固定 revision 的 LR-Sum cmn_s train Parquet；见 README.md 与 data/SOURCE.md。")
     actual_external_hash = sha256_bytes((ROOT / RELATIVE_PARQUET).read_bytes())
     if actual_external_hash != EXPECTED_PARQUET_SHA256:
         raise SystemExit(f"LR-Sum Parquet SHA256 不匹配：{actual_external_hash}")
@@ -665,10 +680,10 @@ def main() -> int:
         print(f"[stage] diagnostics armed path={diagnostic_path}", flush=True)
         metadata = run_training()
         from audit import audit
-        print("[stage] independent audit start", flush=True)
+        print("[stage] result-consistency audit start", flush=True)
         audit_started = time.perf_counter()
         audit_report = audit(ROOT)
-        print(f"[stage] independent audit done seconds={time.perf_counter() - audit_started:.2f} status={audit_report.get('status')}", flush=True)
+        print(f"[stage] result-consistency audit done seconds={time.perf_counter() - audit_started:.2f} status={audit_report.get('status')}", flush=True)
         metadata["audit"] = audit_report
         metadata["files"] = sorted(
             str(path.relative_to(ROOT))

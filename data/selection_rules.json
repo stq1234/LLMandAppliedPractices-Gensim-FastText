@@ -169,14 +169,20 @@
   "fallback_per_category": 40,
   "international_scope_note": "只用外国国名、联合国和外交相关词；不使用国际、亚洲、欧洲、中东等泛词。",
   "keyword_matching": "exact token match after POS/chunk cleanup",
-  "per_category_target": 50,
+  "minimum_candidate_count": 277,
+  "per_category_target": 200,
   "politics_scope_note": "使用核心政治机构/制度词；不使用国家、会议、领导、总统、中央、政策等泛词。",
-  "remove_pos": true,
+  "remove_pinyin_annotations": true,
+  "remove_pos": false,
   "remove_punctuation_pos": "w",
+  "remove_punctuation_tokens": true,
   "same_category_multiple_keyword_tokens_allowed": true,
-  "selection_salt": "20261009:select:",
+  "sample_note": "Each class has at least 200 eligible articles; choose 200 per class by salted SHA-256 order.",
+  "selection_salt": "20261015:teacher-h1:select:",
   "single_category_only": true,
   "social_scope_note": "社会为广义民生/社会议题，和经济、政治、文化可能交叉；跨类别标题命中会被剔除，但弱标签仍可能有语义噪声。",
+  "source_deduplication": "collapse exact same-ID/same-body records; exclude conflicting same-ID article; deduplicate canonical bodies before label filtering and splitting",
+  "source_encoding": "GB18030 strict; exclude an entire article if any record cannot decode",
   "split_for_40": {
     "test": 8,
     "train": 24,
@@ -187,7 +193,12 @@
     "train": 30,
     "val": 10
   },
-  "split_salt": "20261009:split:",
+  "split_per_class": {
+    "test": 30,
+    "train": 140,
+    "val": 30
+  },
+  "split_salt": "20261015:teacher-h1:split:",
   "tasks": {
     "2class": [
       "体育",

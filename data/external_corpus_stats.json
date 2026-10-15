@@ -1,8 +1,8 @@
 {
   "config": "cmn_s",
-  "cross_corpus_exact_matches_any_people_daily": 0,
+  "cross_corpus_exact_matches_any_teacher": 0,
   "cross_corpus_exact_matches_validation_test": 0,
-  "cross_corpus_prefix_200_matches_any_people_daily": 0,
+  "cross_corpus_prefix_200_matches_any_teacher": 0,
   "cross_corpus_prefix_200_matches_validation_test": 0,
   "dataset": "bltlab/lr-sum",
   "deduplication_fingerprint": "casefold + NFKC + remove whitespace and Unicode punctuation; exact text SHA-256",

@@ -1,4 +1,40 @@
 {
+  "classification_source": {
+    "derived_source_archive": "data/source/teacher_1998_h1_gb18030.tar.xz",
+    "derived_source_archive_bytes": 10208876,
+    "derived_source_archive_sha256": "63ac4a05079b391662bde04240cf8995fa80075406ff10a748d7c8aeb146eb5c",
+    "encoding": "GB18030 strict per record",
+    "members": {
+      "1998-01-2003版-带音.txt": {
+        "bytes": 5320005,
+        "sha256": "37b85555df2f72642ff9815ac01f51d4f50024d80ca0e2e8a6be6f93b1038639"
+      },
+      "1998-02-2003版-带音.txt": {
+        "bytes": 5441098,
+        "sha256": "a050351664f459aed2247bc45cd46c25da2ce893e11c44a9dea06a54529f19d8"
+      },
+      "1998-03-2003版-带音.txt": {
+        "bytes": 5951910,
+        "sha256": "2f9d8ecfd92eec1b8a7009bd146da5faad218a34ae17fe460944bd772b2e97db"
+      },
+      "1998-04-2003版-带音.txt": {
+        "bytes": 6107764,
+        "sha256": "43462d53f2f7603168745af3200a9e6fe883ddcdf18618280358499e0ffc3fca"
+      },
+      "1998-05-2003版-带音.txt": {
+        "bytes": 5920187,
+        "sha256": "04ae37614a55c2418bcb5c7697c4980afa75a74734e930f06bee6e83022d0aea"
+      },
+      "1998-06-2003版-带音.txt": {
+        "bytes": 5946378,
+        "sha256": "f18f8f3d6e886644baf8306e1f08a31e3a8d390709782f913ae1ea12f3e97c5f"
+      }
+    },
+    "selected_source_window": "1998-01 through 1998-06",
+    "user_supplied_archive": "1998-上半年-带音(1).rar",
+    "user_supplied_archive_bytes": 12093296,
+    "user_supplied_archive_sha256": "30c4435bcce7d082c2175720a4549114f80656761df95d3c8b20f0ee48e5d7ab"
+  },
   "config": "cmn_s",
   "dataset": "bltlab/lr-sum",
   "embedding_input_column": "text",
@@ -8,12 +44,6 @@
     "url",
     "dataset labels"
   ],
-  "frozen_people_daily_sha256_before_change": {
-    "frozen_split.csv": "2345c1b8a8cc1818243bf8378311fcf6e46bfe532866753e565baa74a759c16b",
-    "label_filter_audit.csv": "e50e301fd02d489571addff353b5dd5b487332353979f1358ff80ff38748c72f",
-    "selection_rules.json": "1960a825f6ee0fdda2ba5f0ed9e0fe62924e6706986636be68c56169be3ddeaf",
-    "weak_label_candidates.csv": "d84d452efabace0d59e632b640869bd9507162112b235848a642f313487592cc"
-  },
   "license": "CC BY 4.0",
   "revision": "deb2e73ce53e42ceda31297a991afa138ee665a8",
   "source_bytes": 1528153,
