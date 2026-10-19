@@ -1,0 +1,93 @@
+{
+  "checks": {
+    "class_balanced_nested_sampling": true,
+    "existing_audit_status": "PASS",
+    "external_embedding_corpus_has_no_test_exact_or_prefix_match": true,
+    "metrics_recomputed_from_saved_predictions": true,
+    "same_test_split_all_runs": true,
+    "saved_prediction_rows": 3240,
+    "train_test_article_ids_disjoint": true,
+    "training_test_content_hashes_disjoint": true
+  },
+  "data": {
+    "fixed_split_file": "data/frozen_split.csv",
+    "fixed_split_sha256": "1242f528c3870c4e4de9eeda64ebc2acaf28237c8c129c6bd11e6e3713aeb8f2",
+    "fractions_and_train_articles_per_class": {
+      "0.15": 21,
+      "0.40": 56,
+      "1.00": 140
+    },
+    "label_rule": "existing title-keyword weak labels; no manual labels added",
+    "nested_training_subsets_within_seed": true,
+    "sampling_seeds": [
+      17,
+      29,
+      43
+    ],
+    "test_article_ids_sha256": "fa14a78c71550fa0918fc7e9a859a4ae86e80d002858f2eae158b1a92e5609a2",
+    "test_articles": 180,
+    "test_articles_by_class": 30,
+    "test_is_identical_in_all_runs": true,
+    "train_articles_by_class": 140,
+    "validation_articles_not_used_for_training_or_selection": 180
+  },
+  "environment": {
+    "fasttext_checkpoint_load_seconds": 0.2301912999828346,
+    "gensim": "4.3.3",
+    "numpy": "1.26.4",
+    "python": "3.12.7 | packaged by Anaconda, Inc. | (main, Oct  4 2024, 13:17:27) [MSC v.1929 64 bit (AMD64)]",
+    "scikit_learn": "1.5.1"
+  },
+  "experiment": "six-class weak-label learning curve: TF-IDF unigram vs fixed Gensim FastText mean",
+  "generated_at_local": "2026-10-20 00:36:56 中国标准时间",
+  "models": {
+    "gensim_fasttext_mean": {
+      "classifier": {
+        "C": 1,
+        "class": "sklearn.linear_model.LogisticRegression",
+        "max_iter": 2000,
+        "random_state": 42
+      },
+      "feature": "mean of fixed 100-dimensional FastTextKeyedVectors.get_vector(token) for each source token; OOV vectors use saved character n-gram buckets when available",
+      "scaler": "StandardScaler fitted only on each selected training subset"
+    },
+    "tfidf_unigram": {
+      "classifier": {
+        "C": 1,
+        "class": "sklearn.linear_model.LogisticRegression",
+        "max_iter": 2000,
+        "random_state": 42
+      },
+      "vectorizer": "TfidfVectorizer(tokenizer=str.split, lowercase=False, ngram_range=(1,1), sublinear_tf=True)"
+    }
+  },
+  "outputs": [
+    "results/learning_curve_samples.csv",
+    "results/learning_curve_predictions.csv",
+    "results/learning_curve_metrics.csv",
+    "results/learning_curve_summary.csv",
+    "results/learning_curve_tfidf_vs_gensim_fasttext.png"
+  ],
+  "pretrained_fasttext": {
+    "checkpoint": "models/gensim_fasttext_sg.model",
+    "checkpoint_sha256": "8c52275d6603e9a0a9dab5aa29a1c67d3c75adfcba456040c4c4f6a0b0c7b9d9",
+    "embedding_articles": 482,
+    "embedding_source": "bltlab/lr-sum",
+    "embedding_source_labels_used": false,
+    "embedding_source_revision": "deb2e73ce53e42ceda31297a991afa138ee665a8",
+    "embedding_source_sha256": "687db5968b23e492bfb904dc438e6ecff95f711ab93c8ef3d4d36e086d5e8630",
+    "embedding_source_split": "train",
+    "embedding_tokens": 359302,
+    "embedding_training_articles": 482,
+    "embedding_training_seconds_from_checkpoint_metadata": 374.4624466000005,
+    "gensim_version": "4.3.3",
+    "six_class_training_vocabulary_used_for_export_only": "The existing .vec export uses the union of all six-class training token types, but this experiment reads the saved Gensim checkpoint directly; it does not train on teacher-corpus text or labels.",
+    "teacher_exact_matches": 0,
+    "teacher_prefix_200_matches": 0,
+    "test_exact_matches": 0,
+    "test_prefix_200_matches": 0,
+    "word_vectors_retrained": false
+  },
+  "status": "PASS",
+  "timing": "Per-run pipeline wall time includes feature construction, train-only scaling where applicable, classifier fitting, and fixed-test prediction; excludes checkpoint loading, output writing, and plot rendering. One-time checkpoint load is recorded separately."
+}
