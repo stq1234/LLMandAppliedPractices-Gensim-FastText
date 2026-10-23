@@ -230,20 +230,35 @@ def run_model(
 
 
 def make_figure(summary_rows: list[dict[str, Any]]) -> None:
+    from matplotlib import font_manager
     import matplotlib.pyplot as plt
-    import numpy as np
+
+    available_fonts = {font.name for font in font_manager.fontManager.ttflist}
+    font_families = (
+        "Microsoft YaHei",
+        "SimHei",
+        "SimSun",
+        "Noto Sans CJK SC",
+        "Source Han Sans SC",
+        "WenQuanYi Micro Hei",
+    )
+    for family in font_families:
+        if family in available_fonts:
+            plt.rcParams["font.sans-serif"] = [family]
+            break
+    plt.rcParams["axes.unicode_minus"] = False
 
     figure, axes = plt.subplots(1, 2, figsize=(11.5, 4.8), constrained_layout=True)
     method_names = {
-        "tfidf_unigram": "TF-IDF unigram",
-        "gensim_fasttext_mean": "Gensim FastText mean",
+        "tfidf_unigram": "TF-IDF 一元词项",
+        "gensim_fasttext_mean": "Gensim FastText 词向量均值",
     }
     method_colors = {"tfidf_unigram": "#176B87", "gensim_fasttext_mean": "#D97706"}
     fractions = [0.15, 0.40, 1.00]
     per_class = [TRAIN_PER_CLASS[fraction] for fraction in fractions]
     for axis, metric, title in (
-        (axes[0], "macro_f1", "Test Macro-F1"),
-        (axes[1], "accuracy", "Test Accuracy"),
+        (axes[0], "macro_f1", "测试集 Macro-F1"),
+        (axes[1], "accuracy", "测试集 Accuracy"),
     ):
         for method in method_names:
             rows = [row for row in summary_rows if row["feature_method"] == method]
@@ -255,13 +270,13 @@ def make_figure(summary_rows: list[dict[str, Any]]) -> None:
                 label=method_names[method], color=method_colors[method],
             )
         axis.set_title(title)
-        axis.set_xlabel("Labeled training articles per class")
-        axis.set_ylabel("Score")
+        axis.set_xlabel("每类有标签训练文章数")
+        axis.set_ylabel("得分")
         axis.set_xticks(per_class, [str(value) for value in per_class])
         axis.set_ylim(0.30, 1.00)
         axis.grid(axis="y", alpha=0.25)
         axis.legend(frameon=False)
-    figure.suptitle("Six-class learning curve on the fixed 180-article test set")
+    figure.suptitle("固定六类测试集上的标注规模曲线（测试集 180 篇）")
     path = RESULTS / "learning_curve_tfidf_vs_gensim_fasttext.png"
     figure.savefig(path, dpi=200, bbox_inches="tight")
     plt.close(figure)
